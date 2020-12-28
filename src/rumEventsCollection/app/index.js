@@ -18,7 +18,7 @@ export function rewriteApp(configuration, lifeCycle) {
 		;['onLaunch', 'onShow', 'onHide'].forEach((methodName) => {
 			const userDefinedMethod = app[methodName] // 暂存用户定义的方法
 			app[methodName] = function (options) {
-				console.log(methodName, 'methodName')
+				console.log(methodName, 'methodName app')
 				if (methodName === 'onLaunch') {
 					appInfo.isStartUp = true
 					appInfo.isHide = false
@@ -27,7 +27,7 @@ export function rewriteApp(configuration, lifeCycle) {
 					if (appInfo.isStartUp && appInfo.isHide) {
 						// 判断是热启动
 						appInfo.startupType = startupTypes.HOT
-						scheduleAppUpdate()
+						appUpdate()
 					}
 				} else if (methodName === 'onHide') {
 					lifeCycle.notify(LifeCycleEventType.APP_HIDE)
@@ -43,7 +43,7 @@ export function rewriteApp(configuration, lifeCycle) {
 			...appInfo,
 			...data,
 		}
-		scheduleAppUpdate()
+		appUpdate()
 	})
 	var scheduleAppUpdate = throttle(appUpdate, THROTTLE_VIEW_UPDATE_PERIOD, {
 		leading: false,
@@ -64,6 +64,7 @@ function startPerformanceObservable(lifeCycle, callback) {
 	var subscribe = lifeCycle.subscribe(
 		LifeCycleEventType.PERFORMANCE_ENTRY_COLLECTED,
 		function (entitys) {
+			console.log(entitys, 'entitys')
 			// 过滤掉其他页面监听，只保留首次启动
 			var startupDuration, scriptLoadDuration, codeDownloadDuration
 			const launchEntity = entitys.find(
