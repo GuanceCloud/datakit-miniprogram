@@ -1,0 +1,24 @@
+cjs
+esm
+bundle
+node_modules
+.vscode
+*.pyc
+*.tsbuildinfo
+scripts/publish-oss.js
+# logs
+yarn-error.log
+npm-debug.log
+lerna-debug.log
+local.log
+
+# ide
+.idea
+*.sublime-*
+# misc
+.DS_Store
+._*
+.Spotlight-V100
+.Trashes
+
+package-lock.json
