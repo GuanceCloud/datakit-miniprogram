@@ -1,6 +1,6 @@
 {
 	"name": "@cloudcare/rum-miniapp",
-	"version": "0.0.3",
+	"version": "0.0.4",
 	"main": "cjs/index.js",
 	"module": "esm/index.js",
 	"miniprogram": "cjs",
@@ -33,12 +33,12 @@
 		"miniapp"
 	],
 	"repository": {
-		"url": "https://github.com/CloudCare/dataflux-rum-miniapp",
+		"url": "https://github.com/CloudCare/dataflux-rum-sdk-miniapp",
 		"type": "git"
 	},
 	"author": "dataflux",
 	"license": "MIT",
-	"homepage": "https://github.com/CloudCare/dataflux-rum-miniapp/blob/main/README.md",
+	"homepage": "https://github.com/CloudCare/dataflux-rum-sdk-miniapp/blob/main/README.md",
 	"description": "DataFlux RUM 小程序 端数据指标监控",
 	"dependencies": {}
 }
