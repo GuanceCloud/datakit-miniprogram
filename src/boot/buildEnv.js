@@ -1,4 +1,4 @@
 export const buildEnv = {
 	sdkVersion: '<<< SDK_VERSION >>>',
-	sdkName: 'Web SDK',
+	sdkName: '小程序 SDK',
 }

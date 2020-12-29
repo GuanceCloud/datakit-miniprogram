@@ -16,7 +16,6 @@ function startRumBatch(configuration, lifeCycle) {
   lifeCycle.subscribe(_lifeCycle.LifeCycleEventType.RUM_EVENT_COLLECTED, function (data) {
     var rumEvent = data.rumEvent;
     var serverRumEvent = data.serverRumEvent;
-    console.log(serverRumEvent, serverRumEvent.type, 'serverRumEvent');
 
     if (rumEvent.type === _enums.RumEventType.VIEW) {
       batch.upsert(serverRumEvent, rumEvent.page.id);

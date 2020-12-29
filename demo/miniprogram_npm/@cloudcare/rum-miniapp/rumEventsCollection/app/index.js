@@ -40,7 +40,7 @@ function rewriteApp(configuration, lifeCycle) {
       var userDefinedMethod = app[methodName]; // 暂存用户定义的方法
 
       app[methodName] = function (options) {
-        console.log(methodName, 'methodName');
+        console.log(methodName, 'methodName app');
 
         if (methodName === 'onLaunch') {
           appInfo.isStartUp = true;
@@ -50,7 +50,7 @@ function rewriteApp(configuration, lifeCycle) {
           if (appInfo.isStartUp && appInfo.isHide) {
             // 判断是热启动
             appInfo.startupType = startupTypes.HOT;
-            scheduleAppUpdate();
+            appUpdate();
           }
         } else if (methodName === 'onHide') {
           lifeCycle.notify(_lifeCycle.LifeCycleEventType.APP_HIDE);
@@ -65,7 +65,7 @@ function rewriteApp(configuration, lifeCycle) {
 
   startPerformanceObservable(lifeCycle, function (data) {
     appInfo = _objectSpread(_objectSpread({}, appInfo), data);
-    scheduleAppUpdate();
+    appUpdate();
   });
   var scheduleAppUpdate = (0, _utils.throttle)(appUpdate, THROTTLE_VIEW_UPDATE_PERIOD, {
     leading: false
@@ -85,7 +85,8 @@ function rewriteApp(configuration, lifeCycle) {
 
 function startPerformanceObservable(lifeCycle, callback) {
   var subscribe = lifeCycle.subscribe(_lifeCycle.LifeCycleEventType.PERFORMANCE_ENTRY_COLLECTED, function (entitys) {
-    // 过滤掉其他页面监听，只保留首次启动
+    console.log(entitys, 'entitys'); // 过滤掉其他页面监听，只保留首次启动
+
     var startupDuration, scriptLoadDuration, codeDownloadDuration;
     var launchEntity = entitys.find(function (entity) {
       return entity.entryType === 'navigation' && entity.navigationType === 'appLaunch';

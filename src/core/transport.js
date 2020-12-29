@@ -146,8 +146,22 @@ batch.prototype = {
 		if (!HAS_MULTI_BYTES_CHARACTERS.test(candidate)) {
 			return candidate.length
 		}
-
-		return new Blob([candidate]).size
+		var total = 0,
+			charCode
+		// utf-8编码
+		for (var i = 0, len = candidate.length; i < len; i++) {
+			charCode = candidate.charCodeAt(i)
+			if (charCode <= 0x007f) {
+				total += 1
+			} else if (charCode <= 0x07ff) {
+				total += 2
+			} else if (charCode <= 0xffff) {
+				total += 3
+			} else {
+				total += 4
+			}
+		}
+		return total
 	},
 
 	addOrUpdate: function (message, key) {
