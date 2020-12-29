@@ -196,7 +196,6 @@ batch.prototype = {
 	},
 
 	push: function (processedMessage, messageBytesSize, key) {
-		console.log(processedMessage, 'processedMessage')
 		if (this.bufferMessageCount > 0) {
 			// \n separator at serialization
 			this.bufferBytesSize += 1

@@ -93,8 +93,9 @@ export function computePerformanceResourceDetails(entry) {
 		fetchStart = validEntry.fetchStart,
 		redirectStart = validEntry.redirectStart,
 		redirectEnd = validEntry.redirectEnd,
-		domainLookupStart = validEntry.domainLookupStart,
-		domainLookupEnd = validEntry.domainLookupEnd,
+		domainLookupStart =
+			validEntry.domainLookupStart || validEntry.domainLookUpStart,
+		domainLookupEnd = validEntry.domainLookupEnd || validEntry.domainLookUpEnd,
 		connectStart = validEntry.connectStart,
 		SSLconnectionStart = validEntry.SSLconnectionStart,
 		SSLconnectionEnd = validEntry.SSLconnectionEnd,
@@ -112,7 +113,7 @@ export function computePerformanceResourceDetails(entry) {
 		details.tcp = formatTiming(startTime, connectStart, connectEnd)
 
 		// Make sure a secure connection occurred
-		if (areInOrder(connectStart, secureConnectionStart, SSLconnectionEnd)) {
+		if (areInOrder(connectStart, SSLconnectionStart, SSLconnectionEnd)) {
 			details.ssl = formatTiming(
 				startTime,
 				SSLconnectionStart,

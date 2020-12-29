@@ -185,6 +185,7 @@ export default {
 			app_id: 'application.id',
 			env: '_dd.env',
 			app_version: '_dd.version',
+			version: '_dd.version',
 			sdk_name: '_dd.sdk_name',
 			sdk_version: '_dd.sdk_version',
 			is_signin: 'user.is_signin',

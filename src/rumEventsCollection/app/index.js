@@ -64,7 +64,6 @@ function startPerformanceObservable(lifeCycle, callback) {
 	var subscribe = lifeCycle.subscribe(
 		LifeCycleEventType.PERFORMANCE_ENTRY_COLLECTED,
 		function (entitys) {
-			console.log(entitys, 'entitys')
 			// 过滤掉其他页面监听，只保留首次启动
 			var startupDuration, scriptLoadDuration, codeDownloadDuration
 			const launchEntity = entitys.find(
