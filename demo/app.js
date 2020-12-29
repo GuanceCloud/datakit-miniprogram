@@ -1,20 +1,20 @@
 // //app.js
-// const { datafluxRum } = require('./miniprogram/dataflux-rum-miniapp')
-// // // 初始化 Sentry
-// datafluxRum.init({
-// 	datakitOrigin: 'http://10.100.64.161:9529',
-// 	applicationId: 'appid_14eae490469e11eba9eb920038d3be75',
-// 	env: 'testing',
-//   version: '1.0.0',
-// })
-const { datafluxRum } = require('@cloudcare/rum-miniapp')
+const { datafluxRum } = require('./miniprogram/dataflux-rum-miniapp')
 // // 初始化 Sentry
 datafluxRum.init({
-	datakitOrigin: 'http://10.100.64.161:9529/',// 必填，Datakit域名地址 需要在微信小程序管理后台加上域名白名单
-	applicationId: 'appid_14eae490469e11eba9eb920038d3be75', // 必填，dataflux 平台生成的应用ID
-	env: 'testing', // 选填，小程序的环境
-  version: '1.0.0', // 选填，小程序版本
+	datakitOrigin: 'http://10.100.64.161:9529',
+	applicationId: 'appid_14eae490469e11eba9eb920038d3be75',
+	env: 'testing',
+  version: '1.0.0',
 })
+// const { datafluxRum } = require('@cloudcare/rum-miniapp')
+// // // 初始化 Sentry
+// datafluxRum.init({
+// 	datakitOrigin: 'http://10.100.64.161:9529/',// 必填，Datakit域名地址 需要在微信小程序管理后台加上域名白名单
+// 	applicationId: 'appid_14eae490469e11eba9eb920038d3be75', // 必填，dataflux 平台生成的应用ID
+// 	env: 'testing', // 选填，小程序的环境
+//   version: '1.0.0', // 选填，小程序版本
+// })
 // wx.request({
 // 	url: 'url',
 // })

@@ -9,6 +9,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@cloudcare/rum-miniapp": "^0.0.6"
+    "@cloudcare/rum-miniapp": "^0.0.7"
   }
 }
