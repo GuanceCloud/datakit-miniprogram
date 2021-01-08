@@ -52,7 +52,7 @@ export function startParentContexts(lifeCycle) {
 		return {
 			page: {
 				id: currentView.id,
-				referrer:
+				referer:
 					previousViews.length &&
 					previousViews[previousViews.length - 1].context.page.route,
 				route: currentView.route,
