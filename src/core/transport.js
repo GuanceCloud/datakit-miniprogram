@@ -109,7 +109,9 @@ batch.prototype = {
 							_valueData =
 								type === 'string'
 									? '"' +
-									  _valueData.replace(/[\\]*"/g, '"').replace(/"/g, '\\"') +
+									  String(_valueData)
+											.replace(/[\\]*"/g, '"')
+											.replace(/"/g, '\\"') +
 									  '"'
 									: escapeRowData(_valueData)
 							fieldsStr.push(escapeRowData(_key) + '=' + _valueData)

@@ -2,8 +2,8 @@
 const { datafluxRum } = require('./miniprogram/dataflux-rum-miniapp')
 // // 初始化 Sentry
 datafluxRum.init({
-	datakitOrigin: 'http://10.100.64.161:9529',
-	applicationId: 'appid_14eae490469e11eba9eb920038d3be75',
+	datakitOrigin: 'http://10.100.64.249:9529',
+	applicationId: 'appid_f79b4b96645c11eb9eaa7a259b00813d',
 	env: 'testing',
   version: '1.0.0',
 })
