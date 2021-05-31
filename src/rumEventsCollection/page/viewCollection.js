@@ -25,27 +25,30 @@ function processViewUpdate(view) {
 		date: view.startTime,
 		type: RumEventType.VIEW,
 		page: {
-			// action: {
-			//   count: view.eventCounts.userActionCount
-			// },
-
+			action: {
+				count: view.eventCounts.userActionCount,
+			},
 			error: {
 				count: view.eventCounts.errorCount,
 			},
-			// firstInputDelay: msToNs(view.timings.firstInputDelay),
+			setdata: {
+				count: view.setdataCount,
+			},
+			setdata_duration: msToNs(view.setdataDuration),
 			loadingTime: msToNs(view.loadingTime),
 			stayTime: msToNs(view.stayTime),
 			onload2onshow: msToNs(view.onload2onshowTime),
 			onshow2onready: msToNs(view.onshow2onready),
 			fpt: msToNs(view.fpt),
 			fmp: msToNs(view.fmp),
+			isActive: view.isActive,
 			apdexLevel,
 			// longTask: {
 			//   count: view.eventCounts.longTaskCount
 			// },
-			// resource: {
-			//   count: view.eventCounts.resourceCount
-			// },
+			resource: {
+				count: view.eventCounts.resourceCount,
+			},
 			timeSpent: msToNs(view.duration),
 		},
 	}

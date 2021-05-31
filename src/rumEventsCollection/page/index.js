@@ -1,4 +1,4 @@
-import { now, throttle, UUID } from '../../helper/utils'
+import { extend, now, throttle, UUID, isNumber } from '../../helper/utils'
 import { trackEventCounts } from '../trackEventCounts'
 import { LifeCycleEventType } from '../../core/lifeCycle'
 // 劫持原小程序App方法
@@ -11,13 +11,20 @@ export function rewritePage(configuration, lifeCycle) {
 		// 合并方法，插入记录脚本
 		var currentView,
 			startTime = now()
-		;['onUnload', 'onShow', 'onHide', 'onReady', 'onLoad'].forEach(
+		;['onReady', 'onShow', 'onLoad', 'onUnload', 'onHide'].forEach(
 			(methodName) => {
-				const userDefinedMethod = page[methodName] // 暂存用户定义的方法
-				page[methodName] = function (options) {
+				const userDefinedMethod = page[methodName]
+				if (typeof userDefinedMethod !== 'function') return
+				page[methodName] = function () {
+					// console.log(
+					// 	this.setUpdatePerformanceListener,
+					// 	'setUpdatePerformanceListenersetUpdatePerformanceListener',
+					// )
+					console.log(methodName, '111111')
 					if (methodName === 'onShow' || methodName === 'onLoad') {
 						if (typeof currentView === 'undefined') {
 							const activePage = getActivePage()
+							console.log(currentView, 'currenetView')
 							currentView = newView(
 								lifeCycle,
 								activePage && activePage.route,
@@ -25,7 +32,9 @@ export function rewritePage(configuration, lifeCycle) {
 							)
 						}
 					}
+
 					currentView && currentView.setLoadEventEnd(methodName)
+
 					if (
 						(methodName === 'onUnload' ||
 							methodName === 'onHide' ||
@@ -33,11 +42,11 @@ export function rewritePage(configuration, lifeCycle) {
 						currentView
 					) {
 						currentView.triggerUpdate()
-						if (methodName === 'onUnload') {
+						if (methodName === 'onUnload' || methodName === 'onHide') {
 							currentView.end()
 						}
 					}
-					return userDefinedMethod && userDefinedMethod.call(this, options)
+					return userDefinedMethod && userDefinedMethod.apply(this, arguments)
 				}
 			},
 		)
@@ -49,11 +58,17 @@ function newView(lifeCycle, route, startTime) {
 		startTime = now()
 	}
 	var id = UUID()
+	var isActive = true
 	var eventCounts = {
 		errorCount: 0,
 		resourceCount: 0,
+		userActionCount: 0,
 	}
+	var setdataCount = 0
+
 	var documentVersion = 0
+	var setdataDuration = 0
+	var loadingDuration = 0
 	var loadingTime
 	var showTime
 	var onload2onshowTime
@@ -86,8 +101,29 @@ function newView(lifeCycle, route, startTime) {
 		scheduleViewUpdate()
 	})
 	var stopFptTracking = _trackFptTime.stop
+	var _trackSetDataTime = trackSetDataTime(lifeCycle, function (duration) {
+		if (isNumber(duration)) {
+			setdataDuration += duration
+			setdataCount++
+			scheduleViewUpdate()
+		}
+	})
+	var stopSetDataTracking = _trackSetDataTime.stop
+	var _trackLoadingTime = trackLoadingTime(lifeCycle, function (duration) {
+		if (isNumber(duration)) {
+			loadingDuration = duration
+			scheduleViewUpdate()
+		}
+	})
+	var stopLoadingTimeTracking = _trackLoadingTime.stop
+	var updatesetDataTime = function (duration) {
+		if (isNumber(duration)) {
+			setdataDuration += duration
+			setdataCount++
+			scheduleViewUpdate()
+		}
+	}
 	var setLoadEventEnd = function (type) {
-		console.log(type, 'type')
 		if (type === 'onLoad') {
 			loadingTime = now()
 		} else if (type === 'onShow') {
@@ -112,6 +148,7 @@ function newView(lifeCycle, route, startTime) {
 			if (typeof showTime !== 'undefined') {
 				stayTime = now() - showTime
 			}
+			isActive = false
 		}
 		scheduleViewUpdate()
 	}
@@ -121,20 +158,24 @@ function newView(lifeCycle, route, startTime) {
 			documentVersion: documentVersion,
 			eventCounts: eventCounts,
 			id: id,
-			loadingTime: loadingTime,
+			loadingTime: loadingDuration,
 			stayTime,
 			onload2onshowTime,
 			onshow2onready,
+			setdataDuration,
+			setdataCount,
 			fmp,
 			fpt,
 			startTime: startTime,
 			route: route,
 			duration: now() - startTime,
+			isActive: isActive,
 		})
 	}
 	return {
 		scheduleUpdate: scheduleViewUpdate,
 		setLoadEventEnd,
+		updatesetDataTime,
 		triggerUpdate: function () {
 			// cancel any pending view updates execution
 			cancelScheduleViewUpdate()
@@ -144,6 +185,9 @@ function newView(lifeCycle, route, startTime) {
 			stopEventCountsTracking()
 			stopFptTracking()
 			cancelScheduleViewUpdate()
+			stopSetDataTracking()
+			stopLoadingTimeTracking()
+			lifeCycle.notify(LifeCycleEventType.VIEW_ENDED, { endClocks: now() })
 		},
 	}
 }
@@ -155,9 +199,38 @@ function trackFptTime(lifeCycle, callback) {
 				(entity) =>
 					entity.entryType === 'render' && entity.name === 'firstRender',
 			)
+
 			if (typeof firstRenderEntity !== 'undefined') {
 				callback(firstRenderEntity.duration)
 			}
+		},
+	)
+	return {
+		stop: subscribe.unsubscribe,
+	}
+}
+function trackLoadingTime(lifeCycle, callback) {
+	var subscribe = lifeCycle.subscribe(
+		LifeCycleEventType.PERFORMANCE_ENTRY_COLLECTED,
+		function (entitys) {
+			const navigationEnity = entitys.find(
+				(entity) => entity.entryType === 'navigation',
+			)
+			if (typeof navigationEnity !== 'undefined') {
+				callback(navigationEnity.duration)
+			}
+		},
+	)
+	return {
+		stop: subscribe.unsubscribe,
+	}
+}
+function trackSetDataTime(lifeCycle, callback) {
+	var subscribe = lifeCycle.subscribe(
+		LifeCycleEventType.PAGE_SET_DATA_UPDATE,
+		function (data) {
+			if (!data) return
+			callback(data.updateEndTimestamp - data.pendingStartTimestamp)
 		},
 	)
 	return {

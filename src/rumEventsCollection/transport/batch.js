@@ -3,15 +3,16 @@ import { Batch, HttpRequest } from '../../core/transport'
 import { RumEventType } from '../../helper/enums'
 export function startRumBatch(configuration, lifeCycle) {
 	var batch = makeRumBatch(configuration, lifeCycle)
-	lifeCycle.subscribe(LifeCycleEventType.RUM_EVENT_COLLECTED, function (data) {
-		var rumEvent = data.rumEvent
-		var serverRumEvent = data.serverRumEvent
-		if (rumEvent.type === RumEventType.VIEW) {
-			batch.upsert(serverRumEvent, rumEvent.page.id)
-		} else {
-			batch.add(serverRumEvent)
-		}
-	})
+	lifeCycle.subscribe(
+		LifeCycleEventType.RUM_EVENT_COLLECTED,
+		function (serverRumEvent) {
+			if (serverRumEvent.type === RumEventType.VIEW) {
+				batch.upsert(serverRumEvent, serverRumEvent.page.id)
+			} else {
+				batch.add(serverRumEvent)
+			}
+		},
+	)
 	return {
 		stop: function () {
 			batch.stop()

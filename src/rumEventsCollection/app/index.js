@@ -1,5 +1,6 @@
 import { throttle, now, areInOrder } from '../../helper/utils'
 import { LifeCycleEventType } from '../../core/lifeCycle'
+
 // 劫持原小程序App方法
 export var THROTTLE_VIEW_UPDATE_PERIOD = 3000
 export const startupTypes = {

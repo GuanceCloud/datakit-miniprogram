@@ -28,7 +28,11 @@ Page({
   onReady: function () {
 
   },
-
+  bindSetData: function() {
+    // this.setData({
+    //   text: '111111'
+    // })
+  },
   /**
    * 生命周期函数--监听页面显示
    */

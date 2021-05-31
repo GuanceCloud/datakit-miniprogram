@@ -1,4 +1,4 @@
 export const buildEnv = {
 	sdkVersion: '<<< SDK_VERSION >>>',
-	sdkName: '小程序 SDK',
+	sdkName: 'df_miniapp_rum_sdk',
 }

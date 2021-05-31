@@ -4,7 +4,15 @@ import {
 	computeSize,
 } from './resourceUtils'
 import { LifeCycleEventType } from '../../core/lifeCycle'
-import { msToNs, extend2Lev, urlParse } from '../../helper/utils'
+import {
+	msToNs,
+	extend2Lev,
+	urlParse,
+	getQueryParamsFromUrl,
+	replaceNumberCharByPath,
+	jsonStringify,
+	getStatusGroup,
+} from '../../helper/utils'
 import { RumEventType } from '../../helper/enums'
 export function startResourceCollection(lifeCycle, configuration) {
 	lifeCycle.subscribe(LifeCycleEventType.REQUEST_COMPLETED, function (request) {
@@ -14,12 +22,7 @@ export function startResourceCollection(lifeCycle, configuration) {
 		)
 	})
 }
-function getStatusGroup(status) {
-	if (!status) return status
-	return (
-		String(status).substr(0, 1) + String(status).substr(1).replace(/\d*/g, 'x')
-	)
-}
+
 function processRequest(request) {
 	var type = request.type
 
@@ -34,18 +37,15 @@ function processRequest(request) {
 			date: startTime,
 			resource: {
 				type: type,
-				load: msToNs(request.duration),
+				duration: msToNs(request.duration),
 				method: request.method,
 				status: request.status,
 				statusGroup: getStatusGroup(request.status),
 				url: request.url,
 				urlHost: urlObj.Host,
 				urlPath: urlObj.Path,
-				responseHeader: request.responseHeader,
-				responseConnection: request.responseConnection,
-				responseServer: request.responseServer,
-				responseContentType: request.responseContentType,
-				responseContentEncoding: request.responseContentEncoding,
+				urlPathGroup: replaceNumberCharByPath(urlObj.Path),
+				urlQuery: jsonStringify(getQueryParamsFromUrl(request.url)),
 			},
 			type: RumEventType.RESOURCE,
 		},

@@ -10,6 +10,8 @@ import { startRequestCollection } from '../rumEventsCollection/requestCollection
 import { startResourceCollection } from '../rumEventsCollection/resource/resourceCollection'
 import { startAppCollection } from '../rumEventsCollection/app/appCollection'
 import { startPagePerformanceObservable } from '../rumEventsCollection/performanceCollection'
+import { startSetDataColloction } from '../rumEventsCollection/setDataCollection'
+import { startActionCollection } from '../rumEventsCollection/action/actionCollection'
 
 import { sdk } from '../core/sdk'
 export const startRum = function (userConfiguration) {
@@ -17,7 +19,6 @@ export const startRum = function (userConfiguration) {
 	const lifeCycle = new LifeCycle()
 	var parentContexts = startParentContexts(lifeCycle)
 	var batch = startRumBatch(configuration, lifeCycle)
-
 	startRumAssembly(
 		userConfiguration.applicationId,
 		configuration,
@@ -30,4 +31,6 @@ export const startRum = function (userConfiguration) {
 	startErrorCollection(lifeCycle, configuration)
 	startRequestCollection(lifeCycle, configuration)
 	startPagePerformanceObservable(lifeCycle, configuration)
+	startSetDataColloction(lifeCycle)
+	startActionCollection(lifeCycle, configuration)
 }

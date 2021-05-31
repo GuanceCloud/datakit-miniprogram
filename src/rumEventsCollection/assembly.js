@@ -15,8 +15,7 @@ export function startRumAssembly(
 		function (data) {
 			var startTime = data.startTime
 			var rawRumEvent = data.rawRumEvent
-			var viewContext = parentContexts.findViewV2(startTime)
-
+			var viewContext = parentContexts.findView(startTime)
 			var deviceContext = {
 				device: baseInfo.deviceInfo,
 			}
@@ -24,6 +23,7 @@ export function startRumAssembly(
 				isTracked(configuration) &&
 				(viewContext || rawRumEvent.type === 'app')
 			) {
+				var actionContext = parentContexts.findAction(startTime)
 				var rumContext = {
 					_dd: {
 						sdkName: configuration.sdkName,
@@ -37,8 +37,10 @@ export function startRumAssembly(
 					},
 					device: {},
 					date: new Date().getTime(),
+					session: {
+						id: baseInfo.getSessionId(),
+					},
 					user: {
-						originId: baseInfo.getSessionId(),
 						user_id: configuration.user_id || baseInfo.getClientID(),
 						is_signin: configuration.user_id ? 'T' : 'F',
 					},
@@ -48,14 +50,19 @@ export function startRumAssembly(
 					rumContext,
 					deviceContext,
 					viewContext,
+					actionContext,
 					rawRumEvent,
 				)
 
 				var serverRumEvent = withSnakeCaseKeys(rumEvent)
-				lifeCycle.notify(LifeCycleEventType.RUM_EVENT_COLLECTED, {
-					rumEvent: rumEvent,
-					serverRumEvent: serverRumEvent,
-				})
+				if (
+					serverRumEvent.type === 'view' ||
+					serverRumEvent.type === 'action'
+				) {
+					console.log(serverRumEvent, 'serverRumEvent')
+				}
+
+				lifeCycle.notify(LifeCycleEventType.RUM_EVENT_COLLECTED, serverRumEvent)
 			}
 		},
 	)

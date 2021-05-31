@@ -8,23 +8,26 @@ Page({
 		hasUserInfo: false,
 		canIUse: wx.canIUse('button.open-type.getUserInfo'),
 	},
+	bindSetData: function () {
+		this.setData({motto: 'hahhah'})
+	},
 	//事件处理函数
 	bindViewTap: function () {
-    wx.request({
-      url: 'https://www.xxxxx.com/test',
+		wx.request({
+			url: 'https://www.xxxxx.com/test',
 		})
 		wx.downloadFile({
 			url: 'https://www.xxxxx.com/sdtf',
 		})
-  },
-  onError: function() {
-    console.log(arguments,'arguments')
-  },
+	},
+	onError: function () {
+		console.log(arguments, 'arguments')
+	},
 	onLoad: function () {
-		console.log(getCurrentPages(),'getCurrentPages')
+		console.log(getCurrentPages(), 'getCurrentPages')
 		console.error('xxxxxxx')
 		const xxx = sdfs
-		
+
 		if (app.globalData.userInfo) {
 			this.setData({
 				userInfo: app.globalData.userInfo,

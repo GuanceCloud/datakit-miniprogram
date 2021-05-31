@@ -9,6 +9,8 @@ export function trackEventCounts(lifeCycle, callback) {
 	var eventCounts = {
 		errorCount: 0,
 		resourceCount: 0,
+		longTaskCount: 0,
+		userActionCount: 0,
 	}
 
 	var subscription = lifeCycle.subscribe(
@@ -22,6 +24,10 @@ export function trackEventCounts(lifeCycle, callback) {
 					break
 				case RumEventType.RESOURCE:
 					eventCounts.resourceCount += 1
+					callback(eventCounts)
+					break
+				case RumEventType.ACTION:
+					eventCounts.userActionCount += 1
 					callback(eventCounts)
 					break
 			}

@@ -20,10 +20,12 @@ export var DEFAULT_CONFIGURATION = {
 	 * arbitrary value, byte precision not needed
 	 */
 	requestErrorResponseLengthLimit: 32 * ONE_KILO_BYTE,
+	trackInteractions: false,
 }
 
 function getDatakitUrlUrl(url) {
-	if (url.lastIndexOf('/') === url.length - 1) return url + 'v1/write/rum'
+	if (url && url.lastIndexOf('/') === url.length - 1)
+		return url + 'v1/write/rum'
 	return url + '/v1/write/rum'
 }
 export function commonInit(userConfiguration, buildEnv) {
@@ -37,6 +39,9 @@ export function commonInit(userConfiguration, buildEnv) {
 			userConfiguration.datakitUrl || userConfiguration.datakitOrigin,
 		),
 		tags: userConfiguration.tags || [],
+	}
+	if ('trackInteractions' in userConfiguration) {
+		transportConfiguration.trackInteractions = !!userConfiguration.trackInteractions
 	}
 	return extend2Lev(DEFAULT_CONFIGURATION, transportConfiguration)
 }

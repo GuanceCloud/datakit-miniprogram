@@ -100,7 +100,85 @@ export function UUID(placeholder) {
 		  ).toString(16)
 		: `${1e7}-${1e3}-${4e3}-${8e3}-${1e11}`.replace(/[018]/g, UUID)
 }
+export function jsonStringify(value, replacer, space) {
+	if (value === null || value === undefined) {
+		return JSON.stringify(value)
+	}
+	var originalToJSON = [false, undefined]
+	if (hasToJSON(value)) {
+		// We need to add a flag and not rely on the truthiness of value.toJSON
+		// because it can be set but undefined and that's actually significant.
+		originalToJSON = [true, value.toJSON]
+		delete value.toJSON
+	}
 
+	var originalProtoToJSON = [false, undefined]
+	var prototype
+	if (typeof value === 'object') {
+		prototype = Object.getPrototypeOf(value)
+		if (hasToJSON(prototype)) {
+			originalProtoToJSON = [true, prototype.toJSON]
+			delete prototype.toJSON
+		}
+	}
+
+	var result
+	try {
+		result = JSON.stringify(value, undefined, space)
+	} catch (e) {
+		result = '<error: unable to serialize object>'
+	} finally {
+		if (originalToJSON[0]) {
+			value.toJSON = originalToJSON[1]
+		}
+		if (originalProtoToJSON[0]) {
+			prototype.toJSON = originalProtoToJSON[1]
+		}
+	}
+	return result
+}
+function hasToJSON(value) {
+	return (
+		typeof value === 'object' &&
+		value !== null &&
+		value.hasOwnProperty('toJSON')
+	)
+}
+export function elapsed(start, end) {
+	return end - start
+}
+export function getMethods(obj) {
+	var funcs = []
+	for (var key in obj) {
+		if (typeof obj[key] === 'function') {
+			funcs.push(key)
+		}
+	}
+	return funcs
+}
+// 替换url包含数字的路由
+export function replaceNumberCharByPath(path) {
+	if (path) {
+		return path.replace(/\/([^\/]*)\d([^\/]*)/g, '/?')
+	} else {
+		return ''
+	}
+}
+export function getStatusGroup(status) {
+	if (!status) return status
+	return (
+		String(status).substr(0, 1) + String(status).substr(1).replace(/\d*/g, 'x')
+	)
+}
+export var getQueryParamsFromUrl = function (url) {
+	var result = {}
+	var arr = url.split('?')
+	var queryString = arr[1] || ''
+	if (queryString) {
+		result = getURLSearchParams('?' + queryString)
+	}
+	return result
+}
 export function isPercentage(value) {
 	return isNumber(value) && value >= 0 && value <= 100
 }
@@ -224,7 +302,7 @@ export function findByPath(source, path) {
 	var pathArr = path.split('.')
 	while (pathArr.length) {
 		var key = pathArr.shift()
-		if (key in source && hasOwnProperty.call(source, key)) {
+		if (source && key in source && hasOwnProperty.call(source, key)) {
 			source = source[key]
 		} else {
 			return undefined

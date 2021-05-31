@@ -5,10 +5,11 @@ import {
 	each,
 	isString,
 	values,
+	extend,
 } from '../helper/utils'
 import { sdk } from '../core/sdk'
 import { LifeCycleEventType } from '../core/lifeCycle'
-import dataMap from './dataMap'
+import { commonTags, dataMap } from './dataMap'
 // https://en.wikipedia.org/wiki/UTF-8
 var HAS_MULTI_BYTES_CHARACTERS = /[^\u0000-\u007F]/
 function addBatchPrecision(url) {
@@ -79,13 +80,14 @@ batch.prototype = {
 	processSendData: function (message) {
 		// var data = safeJSONParse(message)
 		if (!message || !message.type) return ''
-		var rowsStr = []
+		var rowStr = ''
+		var hasFileds = false
 		each(dataMap, function (value, key) {
 			if (value.type === message.type) {
-				var rowStr = ''
 				rowStr += key + ','
 				var tagsStr = []
-				each(value.tags, function (value_path, _key) {
+				var tags = extend({}, commonTags, value.tags)
+				each(tags, function (value_path, _key) {
 					var _value = findByPath(message, value_path)
 					if (_value || isNumber(_value)) {
 						tagsStr.push(escapeRowData(_key) + '=' + escapeRowData(_value))
@@ -130,18 +132,12 @@ batch.prototype = {
 				if (fieldsStr.length) {
 					rowStr += ' '
 					rowStr += fieldsStr.join(',')
+					hasFileds = true
 				}
 				rowStr = rowStr + ' ' + message.date
-				if (fieldsStr.length) {
-					rowsStr.push(rowStr)
-				}
 			}
 		})
-		if (rowsStr.length) {
-			return rowsStr.join('\n')
-		} else {
-			return ''
-		}
+		return hasFileds ? rowStr : ''
 	},
 	sizeInBytes: function (candidate) {
 		// Accurate byte size computations can degrade performances when there is a lot of events to process

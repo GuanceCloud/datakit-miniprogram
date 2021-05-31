@@ -1,7 +1,11 @@
 import { startAutomaticErrorCollection } from '../../core/errorCollection'
 import { RumEventType } from '../../helper/enums'
 import { LifeCycleEventType } from '../../core/lifeCycle'
-
+import {
+	urlParse,
+	replaceNumberCharByPath,
+	getStatusGroup,
+} from '../../helper/utils'
 export function startErrorCollection(lifeCycle, configuration) {
 	return doStartErrorCollection(
 		lifeCycle,
@@ -20,11 +24,24 @@ export function doStartErrorCollection(lifeCycle, configuration, observable) {
 }
 
 function processError(error) {
+	var resource = error.resource
+	if (resource) {
+		var urlObj = urlParse(error.resource.url).getParse()
+		resource = {
+			method: error.resource.method,
+			status: error.resource.statusCode,
+			statusGroup: getStatusGroup(error.resource.statusCode),
+			url: error.resource.url,
+			urlHost: urlObj.Host,
+			urlPath: urlObj.Path,
+			urlPathGroup: replaceNumberCharByPath(urlObj.Path),
+		}
+	}
 	var rawRumEvent = {
 		date: error.startTime,
 		error: {
 			message: error.message,
-			resource: error.resource,
+			resource: resource,
 			source: error.source,
 			stack: error.stack,
 			type: error.type,

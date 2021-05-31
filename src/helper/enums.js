@@ -10,9 +10,16 @@ export const RumEventType = {
 	VIEW: 'view',
 	RESOURCE: 'resource',
 	APP: 'app',
+	ACTION: 'action',
 }
 
 export var RequestType = {
 	XHR: 'network',
 	DOWNLOAD: 'resource',
+}
+
+export var ActionType = {
+	tap: 'tap',
+	longpress: 'longpress',
+	longtap: 'longtap',
 }

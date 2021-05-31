@@ -8,19 +8,30 @@ class BaseInfo {
 		this.getNetWork()
 	}
 	getDeviceInfo() {
-		const deviceInfo = sdk.getSystemInfoSync()
-		var osInfo = deviceInfo.system.split(' ')
-		this.deviceInfo = {
-			screenSize: `${deviceInfo.screenWidth}*${deviceInfo.screenHeight} `,
-			platform: deviceInfo.platform,
-			platformVersion: deviceInfo.version,
-			osVersion: osInfo.length > 1 && osInfo[1],
-			os: osInfo.length > 1 && osInfo[0],
-			brand: deviceInfo.brand,
-			model: deviceInfo.model,
-			frameworkVersion: deviceInfo.SDKVersion,
-			pixelRatio: deviceInfo.pixelRatio,
-		}
+		try {
+			const deviceInfo = sdk.getSystemInfoSync()
+			var osInfo = deviceInfo.system.split(' ')
+			var osVersion = osInfo.length > 1 && osInfo[1]
+			var osVersionMajor =
+				osVersion.split('.').length && osVersion.split('.')[0]
+			var deviceUUid = ''
+			if (deviceInfo.host) {
+				deviceUUid = deviceInfo.host.appId
+			}
+			this.deviceInfo = {
+				screenSize: `${deviceInfo.screenWidth}*${deviceInfo.screenHeight} `,
+				platform: deviceInfo.platform,
+				platformVersion: deviceInfo.version,
+				osVersion: osVersion,
+				osVersionMajor: osVersionMajor,
+				os: osInfo.length > 1 && osInfo[0],
+				brand: deviceInfo.brand,
+				model: deviceInfo.model,
+				frameworkVersion: deviceInfo.SDKVersion,
+				pixelRatio: deviceInfo.pixelRatio,
+				deviceUuid: deviceUUid,
+			}
+		} catch (e) {}
 	}
 	getClientID() {
 		var clienetId = sdk.getStorageSync(CLIENT_ID_TOKEN)
