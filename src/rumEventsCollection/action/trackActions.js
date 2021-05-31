@@ -15,9 +15,14 @@ export function trackActions(lifeCycle) {
 	Page = function (page) {
 		const methods = getMethods(page)
 		methods.forEach((methodName) => {
-			clickProxy(page, methodName, function (_action) {
-				action.create(_action.type, _action.name)
-			})
+			clickProxy(
+				page,
+				methodName,
+				function (_action) {
+					action.create(_action.type, _action.name)
+				},
+				lifeCycle,
+			)
 		})
 		return originPage(page)
 	}
@@ -38,9 +43,11 @@ export function trackActions(lifeCycle) {
 		},
 	}
 }
-function clickProxy(page, methodName, callback) {
+function clickProxy(page, methodName, callback, lifeCycle) {
 	var oirginMethod = page[methodName]
+
 	page[methodName] = function () {
+		const result = oirginMethod.apply(this, arguments)
 		var action = {}
 		if (isObject(arguments[0])) {
 			var currentTarget = arguments[0].currentTarget || {}
@@ -50,9 +57,36 @@ function clickProxy(page, methodName, callback) {
 				action.type = actionType
 				action.name = dataset.name || dataset.content || dataset.type
 				callback(action)
+			} else if (methodName === 'onAddToFavorites') {
+				action.type = 'click'
+				action.name =
+					'收藏 ' +
+					'标题: ' +
+					result.title +
+					(result.query ? ' query: ' + result.query : '')
+				callback(action)
+				lifeCycle.notify(LifeCycleEventType.PAGE_ALIAS_ACTION, true)
+			} else if (methodName === 'onShareAppMessage') {
+				action.type = 'click'
+				action.name =
+					'转发 ' +
+					'标题: ' +
+					result.title +
+					(result.path ? ' path: ' + result.path : '')
+				callback(action)
+				lifeCycle.notify(LifeCycleEventType.PAGE_ALIAS_ACTION, true)
+			} else if (methodName === 'onShareTimeline') {
+				action.type = 'click'
+				action.name =
+					'分享到朋友圈 ' +
+					'标题: ' +
+					result.title +
+					(result.query ? ' query: ' + result.query : '')
+				callback(action)
+				lifeCycle.notify(LifeCycleEventType.PAGE_ALIAS_ACTION, true)
 			}
 		}
-		return oirginMethod.apply(this, arguments)
+		return result
 	}
 }
 function startActionManagement(lifeCycle) {

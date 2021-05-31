@@ -11,6 +11,44 @@ Page({
 	bindSetData: function () {
 		this.setData({motto: 'hahhah'})
 	},
+
+	onAddToFavorites(res) {
+    // webview 页面返回 webViewUrl
+    console.log('webViewUrl: ', res.webViewUrl)
+    return {
+      title: '自定义标题',
+      imageUrl: 'http://demo.png',
+      query: 'name=xxx&age=xxx',
+    }
+	},
+	onShareAppMessage() {
+    const promise = new Promise(resolve => {
+      setTimeout(() => {
+        resolve({
+          title: '自定义转发标题'
+        })
+      }, 2000)
+		})
+		console.log('分享app')
+    return {
+      title: '自定义转发标题',
+      path: '/page/user?id=123',
+      promise 
+    }
+	},
+	onShareTimeline() {
+		console.log(111111,'分享朋友圈')
+		return {
+      title: '自定义标题',
+      imageUrl: 'http://demo.png',
+      query: 'name=xxx&age=xxx',
+    }
+	},
+	onTabItemTap(item) {
+    console.log(item.index)
+    console.log(item.pagePath)
+    console.log(item.text)
+  },
 	//事件处理函数
 	bindViewTap: function () {
 		wx.request({

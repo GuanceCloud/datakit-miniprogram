@@ -330,11 +330,9 @@ export function deepSnakeCase(candidate) {
 
 export function toSnakeCase(word) {
 	return word
-		.replace(
-			/[A-Z]/g,
-			(uppercaseLetter, index) =>
-				`${index !== 0 ? '_' : ''}${uppercaseLetter.toLowerCase()}`,
-		)
+		.replace(/[A-Z]/g, function (uppercaseLetter, index) {
+			return (index !== 0 ? '_' : '') + uppercaseLetter.toLowerCase()
+		})
 		.replace(/-/g, '_')
 }
 

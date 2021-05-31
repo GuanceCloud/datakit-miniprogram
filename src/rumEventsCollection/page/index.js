@@ -14,17 +14,11 @@ export function rewritePage(configuration, lifeCycle) {
 		;['onReady', 'onShow', 'onLoad', 'onUnload', 'onHide'].forEach(
 			(methodName) => {
 				const userDefinedMethod = page[methodName]
-				if (typeof userDefinedMethod !== 'function') return
 				page[methodName] = function () {
-					// console.log(
-					// 	this.setUpdatePerformanceListener,
-					// 	'setUpdatePerformanceListenersetUpdatePerformanceListener',
-					// )
-					console.log(methodName, 'methodName')
+					console.log(methodName, 'methodName page')
 					if (methodName === 'onShow' || methodName === 'onLoad') {
 						if (typeof currentView === 'undefined') {
 							const activePage = getActivePage()
-							console.log(currentView, 'currenetView')
 							currentView = newView(
 								lifeCycle,
 								activePage && activePage.route,
@@ -116,13 +110,7 @@ function newView(lifeCycle, route, startTime) {
 		}
 	})
 	var stopLoadingTimeTracking = _trackLoadingTime.stop
-	var updatesetDataTime = function (duration) {
-		if (isNumber(duration)) {
-			setdataDuration += duration
-			setdataCount++
-			scheduleViewUpdate()
-		}
-	}
+
 	var setLoadEventEnd = function (type) {
 		if (type === 'onLoad') {
 			loadingTime = now()
@@ -150,7 +138,7 @@ function newView(lifeCycle, route, startTime) {
 			}
 			isActive = false
 		}
-		scheduleViewUpdate()
+		triggerViewUpdate()
 	}
 	function triggerViewUpdate() {
 		documentVersion += 1
@@ -175,9 +163,7 @@ function newView(lifeCycle, route, startTime) {
 	return {
 		scheduleUpdate: scheduleViewUpdate,
 		setLoadEventEnd,
-		updatesetDataTime,
 		triggerUpdate: function () {
-			// cancel any pending view updates execution
 			cancelScheduleViewUpdate()
 			triggerViewUpdate()
 		},

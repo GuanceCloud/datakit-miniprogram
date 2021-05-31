@@ -16,6 +16,19 @@ export function startRumAssembly(
 			var startTime = data.startTime
 			var rawRumEvent = data.rawRumEvent
 			var viewContext = parentContexts.findView(startTime)
+			// console.log(
+			// 	viewContext,
+			// 	viewContext && viewContext.page && viewContext.page.route,
+			// 	'viewContent====',
+			// )
+			if (rawRumEvent.type === 'view') {
+				// console.log(
+				// 	viewContext,
+				// 	viewContext.page && viewContext.page.route,
+				// 	'viewContextviewContext====',
+				// )
+			}
+
 			var deviceContext = {
 				device: baseInfo.deviceInfo,
 			}
@@ -55,12 +68,12 @@ export function startRumAssembly(
 				)
 
 				var serverRumEvent = withSnakeCaseKeys(rumEvent)
-				if (
-					serverRumEvent.type === 'view' ||
-					serverRumEvent.type === 'resource'
-				) {
-					console.log(serverRumEvent, 'serverRumEvent')
-				}
+				// if (
+				// 	serverRumEvent.type === 'view' ||
+				// 	serverRumEvent.type === 'action'
+				// ) {
+				// 	console.log(serverRumEvent, 'serverRumEvent')
+				// }
 
 				lifeCycle.notify(LifeCycleEventType.RUM_EVENT_COLLECTED, serverRumEvent)
 			}

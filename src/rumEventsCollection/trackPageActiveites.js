@@ -61,6 +61,9 @@ export function trackPageActivities(lifeCycle) {
 		lifeCycle.subscribe(LifeCycleEventType.PAGE_SET_DATA_UPDATE, function () {
 			notifyPageActivity()
 		}),
+		lifeCycle.subscribe(LifeCycleEventType.PAGE_ALIAS_ACTION, function () {
+			notifyPageActivity()
+		}),
 	)
 
 	subscriptions.push(

@@ -1,5 +1,5 @@
 import { ONE_MINUTE, ONE_HOUR } from '../helper/enums'
-import { now } from '../helper/utils'
+import { each, now } from '../helper/utils'
 import { LifeCycleEventType } from '../core/lifeCycle'
 export var VIEW_CONTEXT_TIME_OUT_DELAY = 4 * ONE_HOUR
 export var CLEAR_OLD_CONTEXTS_INTERVAL = ONE_MINUTE
@@ -108,7 +108,7 @@ export function startParentContexts(lifeCycle) {
 			return buildContext()
 		}
 		var flag = undefined
-		previousContexts.forEach(function (previousContext) {
+		each(previousContexts, function (previousContext) {
 			if (startTime > previousContext.endTime) {
 				return false
 			}
@@ -117,6 +117,7 @@ export function startParentContexts(lifeCycle) {
 				return false
 			}
 		})
+
 		return flag
 	}
 
