@@ -59,7 +59,7 @@ export var dataMap = {
 			resource_url_query: 'resource.url_query',
 		},
 		fields: {
-			resource_size: 'resouce.size',
+			resource_size: 'resource.size',
 			resource_load: 'resource.load',
 			resource_dns: 'resource.dns',
 			resource_tcp: 'resource.tcp',
@@ -67,7 +67,7 @@ export var dataMap = {
 			resource_ttfb: 'resource.ttfb',
 			resource_trans: 'resource.trans',
 			resource_first_byte: 'resource.firstbyte',
-			duration: 'resouce.duration',
+			duration: 'resource.duration',
 		},
 	},
 	error: {

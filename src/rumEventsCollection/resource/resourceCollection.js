@@ -25,10 +25,9 @@ export function startResourceCollection(lifeCycle, configuration) {
 
 function processRequest(request) {
 	var type = request.type
-
 	var timing = request.performance
 	var correspondingTimingOverrides = timing
-		? computePerformanceEntryMetricsV2(timing)
+		? computePerformanceEntryMetrics(timing)
 		: undefined
 	var urlObj = urlParse(request.url).getParse()
 	var startTime = request.startTime
@@ -53,7 +52,7 @@ function processRequest(request) {
 	)
 	return { startTime: startTime, rawRumEvent: resourceEvent }
 }
-function computePerformanceEntryMetricsV2(timing) {
+function computePerformanceEntryMetrics(timing) {
 	return {
 		resource: extend2Lev(
 			{},

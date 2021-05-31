@@ -38,18 +38,12 @@ export function trackXhr(lifeCycle, configuration) {
 	})
 	xhrProxy.onRequestComplete(function (context) {
 		if (isAllowedRequestUrl(configuration, context.url)) {
-			var header = parseHeader(context.header || {})
 			lifeCycle.notify(LifeCycleEventType.REQUEST_COMPLETED, {
 				duration: context.duration,
 				method: context.method,
 				requestIndex: context.requestIndex,
 				performance: context.profile,
 				response: context.response,
-				responseConnection: header['connection'],
-				responseServer: header['server'],
-				responseHeader: getHeaderString(header),
-				responseContentType: header['content-type'],
-				responseContentEncoding: header['content-encoding'],
 				startTime: context.startTime,
 				status: context.status,
 				type: context.type,
@@ -71,17 +65,12 @@ export function trackDownload(lifeCycle, configuration) {
 	})
 	dwonloadProxy.onRequestComplete(function (context) {
 		if (isAllowedRequestUrl(configuration, context.url)) {
-			var header = parseHeader(context.header || {})
 			lifeCycle.notify(LifeCycleEventType.REQUEST_COMPLETED, {
 				duration: context.duration,
+				method: context.method,
 				requestIndex: context.requestIndex,
 				performance: context.profile,
 				response: context.response,
-				responseConnection: header['connection'],
-				responseServer: header['server'],
-				responseHeader: getHeaderString(header),
-				responseContentType: header['content-type'],
-				responseContentEncoding: header['content-encoding'],
 				startTime: context.startTime,
 				status: context.status,
 				type: context.type,

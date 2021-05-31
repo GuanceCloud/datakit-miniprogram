@@ -20,7 +20,7 @@ export function rewritePage(configuration, lifeCycle) {
 					// 	this.setUpdatePerformanceListener,
 					// 	'setUpdatePerformanceListenersetUpdatePerformanceListener',
 					// )
-					console.log(methodName, '111111')
+					console.log(methodName, 'methodName')
 					if (methodName === 'onShow' || methodName === 'onLoad') {
 						if (typeof currentView === 'undefined') {
 							const activePage = getActivePage()

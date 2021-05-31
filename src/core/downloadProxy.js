@@ -33,6 +33,7 @@ function proxyDownload() {
 	originalDownloadRequest = sdk.downloadFile
 	sdk.downloadFile = function () {
 		var dataflux_xhr = {
+			method: 'GET',
 			startTime: 0,
 			url: arguments[0].url,
 			type: RequestType.DOWNLOAD,

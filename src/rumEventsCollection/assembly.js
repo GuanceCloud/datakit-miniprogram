@@ -57,7 +57,7 @@ export function startRumAssembly(
 				var serverRumEvent = withSnakeCaseKeys(rumEvent)
 				if (
 					serverRumEvent.type === 'view' ||
-					serverRumEvent.type === 'action'
+					serverRumEvent.type === 'resource'
 				) {
 					console.log(serverRumEvent, 'serverRumEvent')
 				}
