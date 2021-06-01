@@ -84,6 +84,16 @@ function clickProxy(page, methodName, callback, lifeCycle) {
 					(result.query ? ' query: ' + result.query : '')
 				callback(action)
 				lifeCycle.notify(LifeCycleEventType.PAGE_ALIAS_ACTION, true)
+			} else if (methodName === 'onTabItemTap') {
+				var item = arguments.length && arguments[0]
+				action.type = 'click'
+				action.name =
+					'tab ' +
+					'名称: ' +
+					item.text +
+					(item.pagePath ? ' 跳转到: ' + item.pagePath : '')
+				callback(action)
+				lifeCycle.notify(LifeCycleEventType.PAGE_ALIAS_ACTION, true)
 			}
 		}
 		return result

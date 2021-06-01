@@ -1,3 +1,4 @@
+import { MpHook } from './enums'
 var ArrayProto = Array.prototype
 var ObjProto = Object.prototype
 var ObjProto = Object.prototype
@@ -150,7 +151,7 @@ export function elapsed(start, end) {
 export function getMethods(obj) {
 	var funcs = []
 	for (var key in obj) {
-		if (typeof obj[key] === 'function') {
+		if (typeof obj[key] === 'function' && !MpHook[key]) {
 			funcs.push(key)
 		}
 	}

@@ -32,6 +32,7 @@ export function resetDownloadProxy() {
 function proxyDownload() {
 	originalDownloadRequest = sdk.downloadFile
 	sdk.downloadFile = function () {
+		var _this = this
 		var dataflux_xhr = {
 			method: 'GET',
 			startTime: 0,

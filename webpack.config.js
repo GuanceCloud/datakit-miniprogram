@@ -6,7 +6,7 @@ module.exports = (env, args) => {
 		entry: './src/index.js',
 		output: {
 			filename: 'dataflux-rum-miniapp.js',
-			path: path.resolve(__dirname, './demo/miniprogram'),
+			path: path.resolve(__dirname, './demo2/miniprogram'),
 			library: {
 				type: 'commonjs2',
 			},

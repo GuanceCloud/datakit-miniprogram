@@ -6,44 +6,46 @@ export var THROTTLE_VIEW_UPDATE_PERIOD = 3000
 
 export function rewritePage(configuration, lifeCycle) {
 	const originPage = Page
-
+	console.log(originPage, 'originPage=====')
 	Page = function (page) {
 		// 合并方法，插入记录脚本
 		var currentView,
 			startTime = now()
-		;['onReady', 'onShow', 'onLoad', 'onUnload', 'onHide'].forEach(
-			(methodName) => {
-				const userDefinedMethod = page[methodName]
-				page[methodName] = function () {
-					console.log(methodName, 'methodName page')
-					if (methodName === 'onShow' || methodName === 'onLoad') {
-						if (typeof currentView === 'undefined') {
-							const activePage = getActivePage()
-							currentView = newView(
-								lifeCycle,
-								activePage && activePage.route,
-								startTime,
-							)
+		console
+			.log(page, 'page======')
+			[('onReady', 'onShow', 'onLoad', 'onUnload', 'onHide')].forEach(
+				(methodName) => {
+					const userDefinedMethod = page[methodName]
+					page[methodName] = function () {
+						console.log(methodName, 'methodName page')
+						if (methodName === 'onShow' || methodName === 'onLoad') {
+							if (typeof currentView === 'undefined') {
+								const activePage = getActivePage()
+								currentView = newView(
+									lifeCycle,
+									activePage && activePage.route,
+									startTime,
+								)
+							}
 						}
-					}
 
-					currentView && currentView.setLoadEventEnd(methodName)
+						currentView && currentView.setLoadEventEnd(methodName)
 
-					if (
-						(methodName === 'onUnload' ||
-							methodName === 'onHide' ||
-							methodName === 'onShow') &&
-						currentView
-					) {
-						currentView.triggerUpdate()
-						if (methodName === 'onUnload' || methodName === 'onHide') {
-							currentView.end()
+						if (
+							(methodName === 'onUnload' ||
+								methodName === 'onHide' ||
+								methodName === 'onShow') &&
+							currentView
+						) {
+							currentView.triggerUpdate()
+							if (methodName === 'onUnload' || methodName === 'onHide') {
+								currentView.end()
+							}
 						}
+						return userDefinedMethod && userDefinedMethod.apply(this, arguments)
 					}
-					return userDefinedMethod && userDefinedMethod.apply(this, arguments)
-				}
-			},
-		)
+				},
+			)
 		return originPage(page)
 	}
 }

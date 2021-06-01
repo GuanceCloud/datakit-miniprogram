@@ -32,6 +32,7 @@ export function resetXhrProxy() {
 function proxyXhr() {
 	originalXhrRequest = sdk.request
 	sdk.request = function () {
+		var _this = this
 		var dataflux_xhr = {
 			method: arguments[0].method || 'GET',
 			startTime: 0,
