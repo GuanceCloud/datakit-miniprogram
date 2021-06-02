@@ -84,7 +84,13 @@ batch.prototype = {
 		var hasFileds = false
 		each(dataMap, function (value, key) {
 			if (value.type === message.type) {
-				rowStr += key + ','
+				// 做一下别名处理
+				if (value.alias_key) {
+					rowStr += value.alias_key + ','
+				} else {
+					rowStr += key + ','
+				}
+
 				var tagsStr = []
 				var tags = extend({}, commonTags, value.tags)
 				each(tags, function (value_path, _key) {

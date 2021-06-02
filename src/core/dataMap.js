@@ -106,4 +106,16 @@ export var dataMap = {
 			duration: 'action.loading_time',
 		},
 	},
+	app: {
+		alias_key: 'action', // metrc 别名,
+		type: RumEventType.APP,
+		tags: {
+			action_id: 'app.id',
+			action_name: 'app.name',
+			action_type: 'app.type',
+		},
+		fields: {
+			duration: 'app.duration',
+		},
+	},
 }

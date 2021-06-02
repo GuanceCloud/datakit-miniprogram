@@ -18,13 +18,13 @@ function processAppUpdate(appinfo) {
 		date: appinfo.startTime,
 		type: RumEventType.APP,
 		app: {
-			startupDuration: msToNs(appinfo.startupDuration),
-			scriptLoadDuration: msToNs(appinfo.scriptLoadDuration),
-			codeDownloadDuration: msToNs(appinfo.codeDownloadDuration),
-			startupType: appinfo.startupType,
-			timeSpent: msToNs(appinfo.duration),
+			type: appinfo.type,
+			name: appinfo.name,
+			id: appinfo.id,
+			duration: msToNs(appinfo.duration),
 		},
 	}
+	console.log(appEvent, 'appEvent====')
 	return {
 		rawRumEvent: appEvent,
 		startTime: appinfo.startTime,

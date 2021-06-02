@@ -1,5 +1,6 @@
 import { extend2Lev, withSnakeCaseKeys, performDraw } from '../helper/utils'
 import { LifeCycleEventType } from '../core/lifeCycle'
+import { RumEventType } from '../helper/enums'
 import baseInfo from '../core/baseInfo'
 function isTracked(configuration) {
 	return performDraw(configuration.sampleRate)
@@ -16,25 +17,13 @@ export function startRumAssembly(
 			var startTime = data.startTime
 			var rawRumEvent = data.rawRumEvent
 			var viewContext = parentContexts.findView(startTime)
-			// console.log(
-			// 	viewContext,
-			// 	viewContext && viewContext.page && viewContext.page.route,
-			// 	'viewContent====',
-			// )
-			if (rawRumEvent.type === 'view') {
-				// console.log(
-				// 	viewContext,
-				// 	viewContext.page && viewContext.page.route,
-				// 	'viewContextviewContext====',
-				// )
-			}
 
 			var deviceContext = {
 				device: baseInfo.deviceInfo,
 			}
 			if (
 				isTracked(configuration) &&
-				(viewContext || rawRumEvent.type === 'app')
+				(viewContext || rawRumEvent.type === RumEventType.APP)
 			) {
 				var actionContext = parentContexts.findAction(startTime)
 				var rumContext = {

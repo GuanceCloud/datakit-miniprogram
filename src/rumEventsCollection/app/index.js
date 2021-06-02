@@ -1,4 +1,4 @@
-import { throttle, now, areInOrder } from '../../helper/utils'
+import { now, areInOrder, UUID } from '../../helper/utils'
 import { LifeCycleEventType } from '../../core/lifeCycle'
 
 // 劫持原小程序App方法
@@ -28,7 +28,7 @@ export function rewriteApp(configuration, lifeCycle) {
 					if (appInfo.isStartUp && appInfo.isHide) {
 						// 判断是热启动
 						appInfo.startupType = startupTypes.HOT
-						appUpdate()
+						// appUpdate()
 					}
 				} else if (methodName === 'onHide') {
 					lifeCycle.notify(LifeCycleEventType.APP_HIDE)
@@ -39,48 +39,42 @@ export function rewriteApp(configuration, lifeCycle) {
 		})
 		return originApp(app)
 	}
-	startPerformanceObservable(lifeCycle, function (data) {
-		appInfo = {
-			...appInfo,
-			...data,
-		}
-		appUpdate()
-	})
-	var scheduleAppUpdate = throttle(appUpdate, THROTTLE_VIEW_UPDATE_PERIOD, {
-		leading: false,
-	})
-	function appUpdate() {
-		lifeCycle.notify(LifeCycleEventType.APP_UPDATE, {
-			startupDuration: appInfo.startupDuration,
-			scriptLoadDuration: appInfo.scriptLoadDuration,
-			codeDownloadDuration: appInfo.codeDownloadDuration,
-			startupType: appInfo.startupType,
-			startTime,
-			duration: now() - startTime,
-		})
-	}
+
+	startPerformanceObservable(lifeCycle)
 }
 
-function startPerformanceObservable(lifeCycle, callback) {
+function startPerformanceObservable(lifeCycle) {
 	var subscribe = lifeCycle.subscribe(
 		LifeCycleEventType.PERFORMANCE_ENTRY_COLLECTED,
 		function (entitys) {
 			// 过滤掉其他页面监听，只保留首次启动
-			var startupDuration, scriptLoadDuration, codeDownloadDuration
+			var codeDownloadDuration
 			const launchEntity = entitys.find(
 				(entity) =>
 					entity.entryType === 'navigation' &&
 					entity.navigationType === 'appLaunch',
 			)
 			if (typeof launchEntity !== 'undefined') {
-				startupDuration = launchEntity.duration
+				lifeCycle.notify(LifeCycleEventType.APP_UPDATE, {
+					startTime: launchEntity.startTime,
+					name: '启动',
+					type: 'launch',
+					id: UUID(),
+					duration: launchEntity.duration,
+				})
 			}
 			const scriptentity = entitys.find(
 				(entity) =>
 					entity.entryType === 'script' && entity.name === 'evaluateScript',
 			)
 			if (typeof scriptentity !== 'undefined') {
-				scriptLoadDuration = scriptentity.duration
+				lifeCycle.notify(LifeCycleEventType.APP_UPDATE, {
+					startTime: scriptentity.startTime,
+					name: '脚本注入',
+					type: 'script_insert',
+					id: UUID(),
+					duration: scriptentity.duration,
+				})
 			}
 			const firstEntity = entitys.find(
 				(entity) =>
@@ -95,13 +89,16 @@ function startPerformanceObservable(lifeCycle, callback) {
 				}
 				codeDownloadDuration =
 					launchEntity.duration - firstEntity.duration - scriptentity.duration
+				// 资源下载耗时
+				lifeCycle.notify(LifeCycleEventType.APP_UPDATE, {
+					startTime: launchEntity.startTime,
+					name: '小程序包下载',
+					type: 'package_download',
+					id: UUID(),
+					duration: codeDownloadDuration,
+				})
 				// 资源下载时间暂时定为：首次启动时间-脚本加载时间-初次渲染时间
 			}
-			callback({
-				startupDuration,
-				scriptLoadDuration,
-				codeDownloadDuration,
-			})
 		},
 	)
 	return {
