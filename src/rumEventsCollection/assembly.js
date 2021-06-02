@@ -5,6 +5,10 @@ import baseInfo from '../core/baseInfo'
 function isTracked(configuration) {
 	return performDraw(configuration.sampleRate)
 }
+var SessionType = {
+	SYNTHETICS: 'synthetics',
+	USER: 'user',
+}
 export function startRumAssembly(
 	applicationId,
 	configuration,
@@ -41,6 +45,7 @@ export function startRumAssembly(
 					date: new Date().getTime(),
 					session: {
 						id: baseInfo.getSessionId(),
+						type: SessionType.USER,
 					},
 					user: {
 						user_id: configuration.user_id || baseInfo.getClientID(),
