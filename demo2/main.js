@@ -5,7 +5,7 @@ Vue.config.productionTip = false
 
 App.mpType = 'app'
 
-const { datafluxRum } = require('./miniprogram/dataflux-rum-miniapp')
+const { datafluxRum } = require('./miniprogram/dataflux-rum-uniapp')
 // // 初始化 Sentry
 datafluxRum.init({
 	// datakitOrigin: 'http://10.100.64.249:9529',

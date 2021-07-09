@@ -40,7 +40,7 @@ export var dataMap = {
 			onshow_to_onready: 'page.onshow2onready',
 			time_spent: 'page.time_spent',
 			view_error_count: 'page.error.count',
-			view_resource_count: 'page.error.count',
+			view_resource_count: 'page.resource.count',
 			view_long_task_count: 'page.long_task.count',
 			view_action_count: 'page.action.count',
 			view_setdata_count: 'page.setdata.count',

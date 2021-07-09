@@ -14,7 +14,7 @@ _vue.default.config.productionTip = false;
 
 _App.default.mpType = 'app';var _require =
 
-__webpack_require__(/*! ./miniprogram/dataflux-rum-miniapp */ 11),datafluxRum = _require.datafluxRum;
+__webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module './miniprogram/dataflux-rum-uniapp'"); e.code = 'MODULE_NOT_FOUND'; throw e; }())),datafluxRum = _require.datafluxRum;
 // // 初始化 Sentry
 datafluxRum.init({
   // datakitOrigin: 'http://10.100.64.249:9529',

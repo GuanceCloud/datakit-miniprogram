@@ -57,6 +57,7 @@ function clickProxy(page, methodName, callback, lifeCycle) {
 				action.type = actionType
 				action.name = dataset.name || dataset.content || dataset.type
 				callback(action)
+				lifeCycle.notify(LifeCycleEventType.PAGE_ALIAS_ACTION, true)
 			} else if (methodName === 'onAddToFavorites') {
 				action.type = 'click'
 				action.name =

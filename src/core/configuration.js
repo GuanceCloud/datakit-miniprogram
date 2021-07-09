@@ -1,5 +1,6 @@
 import { extend2Lev, urlParse } from '../helper/utils'
 import { ONE_KILO_BYTE, ONE_SECOND } from '../helper/enums'
+var TRIM_REGIX = /^\s+|\s+$/g
 export var DEFAULT_CONFIGURATION = {
 	sampleRate: 100,
 	flushTimeout: 30 * ONE_SECOND,
@@ -22,11 +23,13 @@ export var DEFAULT_CONFIGURATION = {
 	requestErrorResponseLengthLimit: 32 * ONE_KILO_BYTE,
 	trackInteractions: false,
 }
-
+function trim(str) {
+	return str.replace(TRIM_REGIX, '')
+}
 function getDatakitUrlUrl(url) {
 	if (url && url.lastIndexOf('/') === url.length - 1)
-		return url + 'v1/write/rum'
-	return url + '/v1/write/rum'
+		return trim(url) + 'v1/write/rum'
+	return trim(url) + '/v1/write/rum'
 }
 export function commonInit(userConfiguration, buildEnv) {
 	var transportConfiguration = {
