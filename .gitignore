@@ -2,6 +2,7 @@ cjs
 esm
 bundle
 demo
+demo2
 node_modules
 .vscode
 *.pyc
