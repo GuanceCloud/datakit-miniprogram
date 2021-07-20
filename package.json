@@ -34,12 +34,11 @@
 		"miniapp"
 	],
 	"repository": {
-		"url": "https://github.com/CloudCare/dataflux-rum-sdk-miniapp",
+		"url": "https://github.com/DataFlux-cn/datakit-miniprogram",
 		"type": "git"
 	},
 	"author": "dataflux",
 	"license": "MIT",
-	"homepage": "https://github.com/CloudCare/dataflux-rum-sdk-miniapp/blob/master/README.md",
 	"description": "DataFlux RUM 小程序 端数据指标监控",
 	"dependencies": {}
 }
