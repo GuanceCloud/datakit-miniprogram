@@ -15,6 +15,7 @@ lerna-debug.log
 local.log
 
 # ide
+
 .idea
 *.sublime-*
 # misc
