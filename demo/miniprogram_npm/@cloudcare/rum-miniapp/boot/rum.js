@@ -29,6 +29,10 @@ var _appCollection = require("../rumEventsCollection/app/appCollection");
 
 var _performanceCollection = require("../rumEventsCollection/performanceCollection");
 
+var _setDataCollection = require("../rumEventsCollection/setDataCollection");
+
+var _actionCollection = require("../rumEventsCollection/action/actionCollection");
+
 var _sdk = require("../core/sdk");
 
 var startRum = function startRum(userConfiguration) {
@@ -43,6 +47,8 @@ var startRum = function startRum(userConfiguration) {
   (0, _errorCollection.startErrorCollection)(lifeCycle, configuration);
   (0, _requestCollection.startRequestCollection)(lifeCycle, configuration);
   (0, _performanceCollection.startPagePerformanceObservable)(lifeCycle, configuration);
+  (0, _setDataCollection.startSetDataColloction)(lifeCycle);
+  (0, _actionCollection.startActionCollection)(lifeCycle, configuration);
 };
 
 exports.startRum = startRum;

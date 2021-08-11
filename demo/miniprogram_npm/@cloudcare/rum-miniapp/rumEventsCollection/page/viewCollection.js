@@ -35,26 +35,30 @@ function processViewUpdate(view) {
     date: view.startTime,
     type: _enums.RumEventType.VIEW,
     page: {
-      // action: {
-      //   count: view.eventCounts.userActionCount
-      // },
+      action: {
+        count: view.eventCounts.userActionCount
+      },
       error: {
         count: view.eventCounts.errorCount
       },
-      // firstInputDelay: msToNs(view.timings.firstInputDelay),
+      setdata: {
+        count: view.setdataCount
+      },
+      setdata_duration: (0, _utils.msToNs)(view.setdataDuration),
       loadingTime: (0, _utils.msToNs)(view.loadingTime),
       stayTime: (0, _utils.msToNs)(view.stayTime),
       onload2onshow: (0, _utils.msToNs)(view.onload2onshowTime),
       onshow2onready: (0, _utils.msToNs)(view.onshow2onready),
       fpt: (0, _utils.msToNs)(view.fpt),
       fmp: (0, _utils.msToNs)(view.fmp),
+      isActive: view.isActive,
       apdexLevel: apdexLevel,
       // longTask: {
       //   count: view.eventCounts.longTaskCount
       // },
-      // resource: {
-      //   count: view.eventCounts.resourceCount
-      // },
+      resource: {
+        count: view.eventCounts.resourceCount
+      },
       timeSpent: (0, _utils.msToNs)(view.duration)
     }
   };

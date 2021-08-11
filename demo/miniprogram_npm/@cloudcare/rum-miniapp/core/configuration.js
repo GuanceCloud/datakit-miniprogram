@@ -11,6 +11,7 @@ var _utils = require("../helper/utils");
 
 var _enums = require("../helper/enums");
 
+var TRIM_REGIX = /^\s+|\s+$/g;
 var DEFAULT_CONFIGURATION = {
   sampleRate: 100,
   flushTimeout: 30 * _enums.ONE_SECOND,
@@ -32,13 +33,18 @@ var DEFAULT_CONFIGURATION = {
   /**
    * arbitrary value, byte precision not needed
    */
-  requestErrorResponseLengthLimit: 32 * _enums.ONE_KILO_BYTE
+  requestErrorResponseLengthLimit: 32 * _enums.ONE_KILO_BYTE,
+  trackInteractions: false
 };
 exports.DEFAULT_CONFIGURATION = DEFAULT_CONFIGURATION;
 
+function trim(str) {
+  return str.replace(TRIM_REGIX, '');
+}
+
 function getDatakitUrlUrl(url) {
-  if (url.lastIndexOf('/') === url.length - 1) return url + 'v1/write/rum';
-  return url + '/v1/write/rum';
+  if (url && url.lastIndexOf('/') === url.length - 1) return trim(url) + 'v1/write/rum';
+  return trim(url) + '/v1/write/rum';
 }
 
 function commonInit(userConfiguration, buildEnv) {
@@ -51,6 +57,11 @@ function commonInit(userConfiguration, buildEnv) {
     datakitUrl: getDatakitUrlUrl(userConfiguration.datakitUrl || userConfiguration.datakitOrigin),
     tags: userConfiguration.tags || []
   };
+
+  if ('trackInteractions' in userConfiguration) {
+    transportConfiguration.trackInteractions = !!userConfiguration.trackInteractions;
+  }
+
   return (0, _utils.extend2Lev)(DEFAULT_CONFIGURATION, transportConfiguration);
 }
 

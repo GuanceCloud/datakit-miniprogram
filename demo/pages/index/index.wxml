@@ -7,7 +7,7 @@
       <text class="userinfo-nickname">{{userInfo.nickName}}</text>
     </block>
         <button bindtap="bindSetData" data-name="setData">setData</button>
-
+        <test></test>
   </view>
   <view class="usermotto">
     <text class="user-motto">{{motto}}</text>

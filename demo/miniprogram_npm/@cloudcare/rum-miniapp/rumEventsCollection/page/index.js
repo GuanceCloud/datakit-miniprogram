@@ -18,15 +18,18 @@ exports.THROTTLE_VIEW_UPDATE_PERIOD = THROTTLE_VIEW_UPDATE_PERIOD;
 
 function rewritePage(configuration, lifeCycle) {
   var originPage = Page;
+  console.log(originPage, 'originPage=====');
 
   Page = function Page(page) {
     // 合并方法，插入记录脚本
     var currentView,
         startTime = (0, _utils.now)();
-    ['onUnload', 'onShow', 'onHide', 'onReady', 'onLoad'].forEach(function (methodName) {
-      var userDefinedMethod = page[methodName]; // 暂存用户定义的方法
+    ['onReady', 'onShow', 'onLoad', 'onUnload', 'onHide'].forEach(function (methodName) {
+      var userDefinedMethod = page[methodName];
 
-      page[methodName] = function (options) {
+      page[methodName] = function () {
+        console.log(methodName, 'methodName page');
+
         if (methodName === 'onShow' || methodName === 'onLoad') {
           if (typeof currentView === 'undefined') {
             var activePage = getActivePage();
@@ -39,12 +42,12 @@ function rewritePage(configuration, lifeCycle) {
         if ((methodName === 'onUnload' || methodName === 'onHide' || methodName === 'onShow') && currentView) {
           currentView.triggerUpdate();
 
-          if (methodName === 'onUnload') {
+          if (methodName === 'onUnload' || methodName === 'onHide') {
             currentView.end();
           }
         }
 
-        return userDefinedMethod && userDefinedMethod.call(this, options);
+        return userDefinedMethod && userDefinedMethod.apply(this, arguments);
       };
     });
     return originPage(page);
@@ -57,11 +60,16 @@ function newView(lifeCycle, route, startTime) {
   }
 
   var id = (0, _utils.UUID)();
+  var isActive = true;
   var eventCounts = {
     errorCount: 0,
-    resourceCount: 0
+    resourceCount: 0,
+    userActionCount: 0
   };
+  var setdataCount = 0;
   var documentVersion = 0;
+  var setdataDuration = 0;
+  var loadingDuration = 0;
   var loadingTime;
   var showTime;
   var onload2onshowTime;
@@ -92,9 +100,26 @@ function newView(lifeCycle, route, startTime) {
 
   var stopFptTracking = _trackFptTime.stop;
 
-  var setLoadEventEnd = function setLoadEventEnd(type) {
-    console.log(type, 'type');
+  var _trackSetDataTime = trackSetDataTime(lifeCycle, function (duration) {
+    if ((0, _utils.isNumber)(duration)) {
+      setdataDuration += duration;
+      setdataCount++;
+      scheduleViewUpdate();
+    }
+  });
 
+  var stopSetDataTracking = _trackSetDataTime.stop;
+
+  var _trackLoadingTime = trackLoadingTime(lifeCycle, function (duration) {
+    if ((0, _utils.isNumber)(duration)) {
+      loadingDuration = duration;
+      scheduleViewUpdate();
+    }
+  });
+
+  var stopLoadingTimeTracking = _trackLoadingTime.stop;
+
+  var setLoadEventEnd = function setLoadEventEnd(type) {
     if (type === 'onLoad') {
       loadingTime = (0, _utils.now)();
     } else if (type === 'onShow') {
@@ -115,9 +140,11 @@ function newView(lifeCycle, route, startTime) {
       if (typeof showTime !== 'undefined') {
         stayTime = (0, _utils.now)() - showTime;
       }
+
+      isActive = false;
     }
 
-    scheduleViewUpdate();
+    triggerViewUpdate();
   };
 
   function triggerViewUpdate() {
@@ -126,15 +153,18 @@ function newView(lifeCycle, route, startTime) {
       documentVersion: documentVersion,
       eventCounts: eventCounts,
       id: id,
-      loadingTime: loadingTime,
+      loadingTime: loadingDuration,
       stayTime: stayTime,
       onload2onshowTime: onload2onshowTime,
       onshow2onready: onshow2onready,
+      setdataDuration: setdataDuration,
+      setdataCount: setdataCount,
       fmp: fmp,
       fpt: fpt,
       startTime: startTime,
       route: route,
-      duration: (0, _utils.now)() - startTime
+      duration: (0, _utils.now)() - startTime,
+      isActive: isActive
     });
   }
 
@@ -142,7 +172,6 @@ function newView(lifeCycle, route, startTime) {
     scheduleUpdate: scheduleViewUpdate,
     setLoadEventEnd: setLoadEventEnd,
     triggerUpdate: function triggerUpdate() {
-      // cancel any pending view updates execution
       cancelScheduleViewUpdate();
       triggerViewUpdate();
     },
@@ -150,6 +179,11 @@ function newView(lifeCycle, route, startTime) {
       stopEventCountsTracking();
       stopFptTracking();
       cancelScheduleViewUpdate();
+      stopSetDataTracking();
+      stopLoadingTimeTracking();
+      lifeCycle.notify(_lifeCycle.LifeCycleEventType.VIEW_ENDED, {
+        endClocks: (0, _utils.now)()
+      });
     }
   };
 }
@@ -163,6 +197,31 @@ function trackFptTime(lifeCycle, callback) {
     if (typeof firstRenderEntity !== 'undefined') {
       callback(firstRenderEntity.duration);
     }
+  });
+  return {
+    stop: subscribe.unsubscribe
+  };
+}
+
+function trackLoadingTime(lifeCycle, callback) {
+  var subscribe = lifeCycle.subscribe(_lifeCycle.LifeCycleEventType.PERFORMANCE_ENTRY_COLLECTED, function (entitys) {
+    var navigationEnity = entitys.find(function (entity) {
+      return entity.entryType === 'navigation';
+    });
+
+    if (typeof navigationEnity !== 'undefined') {
+      callback(navigationEnity.duration);
+    }
+  });
+  return {
+    stop: subscribe.unsubscribe
+  };
+}
+
+function trackSetDataTime(lifeCycle, callback) {
+  var subscribe = lifeCycle.subscribe(_lifeCycle.LifeCycleEventType.PAGE_SET_DATA_UPDATE, function (data) {
+    if (!data) return;
+    callback(data.updateEndTimestamp - data.pendingStartTimestamp);
   });
   return {
     stop: subscribe.unsubscribe

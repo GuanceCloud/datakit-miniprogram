@@ -46,6 +46,8 @@ function proxyXhr() {
   originalXhrRequest = _sdk.sdk.request;
 
   _sdk.sdk.request = function () {
+    var _this = this;
+
     var dataflux_xhr = {
       method: arguments[0].method || 'GET',
       startTime: 0,

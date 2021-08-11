@@ -29,20 +29,32 @@ var BaseInfo = /*#__PURE__*/function () {
   _createClass(BaseInfo, [{
     key: "getDeviceInfo",
     value: function getDeviceInfo() {
-      var deviceInfo = _sdk.sdk.getSystemInfoSync();
+      try {
+        var deviceInfo = _sdk.sdk.getSystemInfoSync();
 
-      var osInfo = deviceInfo.system.split(' ');
-      this.deviceInfo = {
-        screenSize: "".concat(deviceInfo.screenWidth, "*").concat(deviceInfo.screenHeight, " "),
-        platform: deviceInfo.platform,
-        platformVersion: deviceInfo.version,
-        osVersion: osInfo.length > 1 && osInfo[1],
-        os: osInfo.length > 1 && osInfo[0],
-        brand: deviceInfo.brand,
-        model: deviceInfo.model,
-        frameworkVersion: deviceInfo.SDKVersion,
-        pixelRatio: deviceInfo.pixelRatio
-      };
+        var osInfo = deviceInfo.system.split(' ');
+        var osVersion = osInfo.length > 1 && osInfo[1];
+        var osVersionMajor = osVersion.split('.').length && osVersion.split('.')[0];
+        var deviceUUid = '';
+
+        if (deviceInfo.host) {
+          deviceUUid = deviceInfo.host.appId;
+        }
+
+        this.deviceInfo = {
+          screenSize: "".concat(deviceInfo.screenWidth, "*").concat(deviceInfo.screenHeight, " "),
+          platform: deviceInfo.platform,
+          platformVersion: deviceInfo.version,
+          osVersion: osVersion,
+          osVersionMajor: osVersionMajor,
+          os: osInfo.length > 1 && osInfo[0],
+          brand: deviceInfo.brand,
+          model: deviceInfo.model,
+          frameworkVersion: deviceInfo.SDKVersion,
+          pixelRatio: deviceInfo.pixelRatio,
+          deviceUuid: deviceUUid
+        };
+      } catch (e) {}
     }
   }, {
     key: "getClientID",

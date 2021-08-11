@@ -46,7 +46,10 @@ function proxyDownload() {
   originalDownloadRequest = _sdk.sdk.downloadFile;
 
   _sdk.sdk.downloadFile = function () {
+    var _this = this;
+
     var dataflux_xhr = {
+      method: 'GET',
       startTime: 0,
       url: arguments[0].url,
       type: _enums.RequestType.DOWNLOAD,

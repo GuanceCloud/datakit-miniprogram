@@ -19,33 +19,25 @@ function startResourceCollection(lifeCycle, configuration) {
   });
 }
 
-function getStatusGroup(status) {
-  if (!status) return status;
-  return String(status).substr(0, 1) + String(status).substr(1).replace(/\d*/g, 'x');
-}
-
 function processRequest(request) {
   var type = request.type;
   var timing = request.performance;
-  var correspondingTimingOverrides = timing ? computePerformanceEntryMetricsV2(timing) : undefined;
+  var correspondingTimingOverrides = timing ? computePerformanceEntryMetrics(timing) : undefined;
   var urlObj = (0, _utils.urlParse)(request.url).getParse();
   var startTime = request.startTime;
   var resourceEvent = (0, _utils.extend2Lev)({
     date: startTime,
     resource: {
       type: type,
-      load: (0, _utils.msToNs)(request.duration),
+      duration: (0, _utils.msToNs)(request.duration),
       method: request.method,
       status: request.status,
-      statusGroup: getStatusGroup(request.status),
+      statusGroup: (0, _utils.getStatusGroup)(request.status),
       url: request.url,
       urlHost: urlObj.Host,
       urlPath: urlObj.Path,
-      responseHeader: request.responseHeader,
-      responseConnection: request.responseConnection,
-      responseServer: request.responseServer,
-      responseContentType: request.responseContentType,
-      responseContentEncoding: request.responseContentEncoding
+      urlPathGroup: (0, _utils.replaceNumberCharByPath)(urlObj.Path),
+      urlQuery: (0, _utils.jsonStringify)((0, _utils.getQueryParamsFromUrl)(request.url))
     },
     type: _enums.RumEventType.RESOURCE
   }, correspondingTimingOverrides);
@@ -55,7 +47,7 @@ function processRequest(request) {
   };
 }
 
-function computePerformanceEntryMetricsV2(timing) {
+function computePerformanceEntryMetrics(timing) {
   return {
     resource: (0, _utils.extend2Lev)({}, {
       load: (0, _resourceUtils.computePerformanceResourceDuration)(timing),

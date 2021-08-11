@@ -5,7 +5,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.buildEnv = void 0;
 var buildEnv = {
-  sdkVersion: '0.0.7',
-  sdkName: '小程序 SDK'
+  sdkVersion: '2.0.2',
+  sdkName: 'df_miniapp_rum_sdk'
 };
 exports.buildEnv = buildEnv;

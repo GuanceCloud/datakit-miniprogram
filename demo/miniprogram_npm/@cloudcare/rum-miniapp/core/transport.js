@@ -11,9 +11,7 @@ var _sdk = require("../core/sdk");
 
 var _lifeCycle = require("../core/lifeCycle");
 
-var _dataMap = _interopRequireDefault(require("./dataMap"));
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+var _dataMap = require("./dataMap");
 
 // https://en.wikipedia.org/wiki/UTF-8
 var HAS_MULTI_BYTES_CHARACTERS = /[^\u0000-\u007F]/;
@@ -80,13 +78,20 @@ batch.prototype = {
   processSendData: function processSendData(message) {
     // var data = safeJSONParse(message)
     if (!message || !message.type) return '';
-    var rowsStr = [];
-    (0, _utils.each)(_dataMap["default"], function (value, key) {
+    var rowStr = '';
+    var hasFileds = false;
+    (0, _utils.each)(_dataMap.dataMap, function (value, key) {
       if (value.type === message.type) {
-        var rowStr = '';
-        rowStr += key + ',';
+        // 做一下别名处理
+        if (value.alias_key) {
+          rowStr += value.alias_key + ',';
+        } else {
+          rowStr += key + ',';
+        }
+
         var tagsStr = [];
-        (0, _utils.each)(value.tags, function (value_path, _key) {
+        var tags = (0, _utils.extend)({}, _dataMap.commonTags, value.tags);
+        (0, _utils.each)(tags, function (value_path, _key) {
           var _value = (0, _utils.findByPath)(message, value_path);
 
           if (_value || (0, _utils.isNumber)(_value)) {
@@ -112,7 +117,7 @@ batch.prototype = {
             var _valueData = (0, _utils.findByPath)(message, value_path);
 
             if (_valueData || (0, _utils.isNumber)(_valueData)) {
-              _valueData = type === 'string' ? '"' + _valueData.replace(/[\\]*"/g, '"').replace(/"/g, '\\"') + '"' : (0, _utils.escapeRowData)(_valueData);
+              _valueData = type === 'string' ? '"' + String(_valueData).replace(/[\\]*"/g, '"').replace(/"/g, '\\"') + '"' : (0, _utils.escapeRowData)(_valueData);
               fieldsStr.push((0, _utils.escapeRowData)(_key) + '=' + _valueData);
             }
           } else if ((0, _utils.isString)(_value)) {
@@ -132,21 +137,13 @@ batch.prototype = {
         if (fieldsStr.length) {
           rowStr += ' ';
           rowStr += fieldsStr.join(',');
+          hasFileds = true;
         }
 
         rowStr = rowStr + ' ' + message.date;
-
-        if (fieldsStr.length) {
-          rowsStr.push(rowStr);
-        }
       }
     });
-
-    if (rowsStr.length) {
-      return rowsStr.join('\n');
-    } else {
-      return '';
-    }
+    return hasFileds ? rowStr : '';
   },
   sizeInBytes: function sizeInBytes(candidate) {
     // Accurate byte size computations can degrade performances when there is a lot of events to process
@@ -205,8 +202,6 @@ batch.prototype = {
     };
   },
   push: function push(processedMessage, messageBytesSize, key) {
-    console.log(processedMessage, 'processedMessage');
-
     if (this.bufferMessageCount > 0) {
       // \n separator at serialization
       this.bufferBytesSize += 1;

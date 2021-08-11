@@ -13,12 +13,9 @@ var _enums = require("../../helper/enums");
 
 function startRumBatch(configuration, lifeCycle) {
   var batch = makeRumBatch(configuration, lifeCycle);
-  lifeCycle.subscribe(_lifeCycle.LifeCycleEventType.RUM_EVENT_COLLECTED, function (data) {
-    var rumEvent = data.rumEvent;
-    var serverRumEvent = data.serverRumEvent;
-
-    if (rumEvent.type === _enums.RumEventType.VIEW) {
-      batch.upsert(serverRumEvent, rumEvent.page.id);
+  lifeCycle.subscribe(_lifeCycle.LifeCycleEventType.RUM_EVENT_COLLECTED, function (serverRumEvent) {
+    if (serverRumEvent.type === _enums.RumEventType.VIEW) {
+      batch.upsert(serverRumEvent, serverRumEvent.page.id);
     } else {
       batch.add(serverRumEvent);
     }

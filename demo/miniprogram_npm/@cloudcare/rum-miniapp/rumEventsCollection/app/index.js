@@ -10,12 +10,6 @@ var _utils = require("../../helper/utils");
 
 var _lifeCycle = require("../../core/lifeCycle");
 
-function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
-
-function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
-
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
 // 劫持原小程序App方法
 var THROTTLE_VIEW_UPDATE_PERIOD = 3000;
 exports.THROTTLE_VIEW_UPDATE_PERIOD = THROTTLE_VIEW_UPDATE_PERIOD;
@@ -49,8 +43,7 @@ function rewriteApp(configuration, lifeCycle) {
         } else if (methodName === 'onShow') {
           if (appInfo.isStartUp && appInfo.isHide) {
             // 判断是热启动
-            appInfo.startupType = startupTypes.HOT;
-            appUpdate();
+            appInfo.startupType = startupTypes.HOT; // appUpdate()
           }
         } else if (methodName === 'onHide') {
           lifeCycle.notify(_lifeCycle.LifeCycleEventType.APP_HIDE);
@@ -63,37 +56,25 @@ function rewriteApp(configuration, lifeCycle) {
     return originApp(app);
   };
 
-  startPerformanceObservable(lifeCycle, function (data) {
-    appInfo = _objectSpread(_objectSpread({}, appInfo), data);
-    appUpdate();
-  });
-  var scheduleAppUpdate = (0, _utils.throttle)(appUpdate, THROTTLE_VIEW_UPDATE_PERIOD, {
-    leading: false
-  });
-
-  function appUpdate() {
-    lifeCycle.notify(_lifeCycle.LifeCycleEventType.APP_UPDATE, {
-      startupDuration: appInfo.startupDuration,
-      scriptLoadDuration: appInfo.scriptLoadDuration,
-      codeDownloadDuration: appInfo.codeDownloadDuration,
-      startupType: appInfo.startupType,
-      startTime: startTime,
-      duration: (0, _utils.now)() - startTime
-    });
-  }
+  startPerformanceObservable(lifeCycle);
 }
 
-function startPerformanceObservable(lifeCycle, callback) {
+function startPerformanceObservable(lifeCycle) {
   var subscribe = lifeCycle.subscribe(_lifeCycle.LifeCycleEventType.PERFORMANCE_ENTRY_COLLECTED, function (entitys) {
-    console.log(entitys, 'entitys'); // 过滤掉其他页面监听，只保留首次启动
-
-    var startupDuration, scriptLoadDuration, codeDownloadDuration;
+    // 过滤掉其他页面监听，只保留首次启动
+    var codeDownloadDuration;
     var launchEntity = entitys.find(function (entity) {
       return entity.entryType === 'navigation' && entity.navigationType === 'appLaunch';
     });
 
     if (typeof launchEntity !== 'undefined') {
-      startupDuration = launchEntity.duration;
+      lifeCycle.notify(_lifeCycle.LifeCycleEventType.APP_UPDATE, {
+        startTime: launchEntity.startTime,
+        name: '启动',
+        type: 'launch',
+        id: (0, _utils.UUID)(),
+        duration: launchEntity.duration
+      });
     }
 
     var scriptentity = entitys.find(function (entity) {
@@ -101,7 +82,13 @@ function startPerformanceObservable(lifeCycle, callback) {
     });
 
     if (typeof scriptentity !== 'undefined') {
-      scriptLoadDuration = scriptentity.duration;
+      lifeCycle.notify(_lifeCycle.LifeCycleEventType.APP_UPDATE, {
+        startTime: scriptentity.startTime,
+        name: '脚本注入',
+        type: 'script_insert',
+        id: (0, _utils.UUID)(),
+        duration: scriptentity.duration
+      });
     }
 
     var firstEntity = entitys.find(function (entity) {
@@ -113,14 +100,16 @@ function startPerformanceObservable(lifeCycle, callback) {
         return;
       }
 
-      codeDownloadDuration = launchEntity.duration - firstEntity.duration - scriptentity.duration; // 资源下载时间暂时定为：首次启动时间-脚本加载时间-初次渲染时间
-    }
+      codeDownloadDuration = launchEntity.duration - firstEntity.duration - scriptentity.duration; // 资源下载耗时
 
-    callback({
-      startupDuration: startupDuration,
-      scriptLoadDuration: scriptLoadDuration,
-      codeDownloadDuration: codeDownloadDuration
-    });
+      lifeCycle.notify(_lifeCycle.LifeCycleEventType.APP_UPDATE, {
+        startTime: launchEntity.startTime,
+        name: '小程序包下载',
+        type: 'package_download',
+        id: (0, _utils.UUID)(),
+        duration: codeDownloadDuration
+      }); // 资源下载时间暂时定为：首次启动时间-脚本加载时间-初次渲染时间
+    }
   });
   return {
     stop: subscribe.unsubscribe

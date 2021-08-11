@@ -10,18 +10,24 @@ export function startSetDataColloction(lifeCycle) {
 				this.setUpdatePerformanceListener({ withDataPaths: true }, (res) => {
 					lifeCycle.notify(LifeCycleEventType.PAGE_SET_DATA_UPDATE, res)
 				})
-			return originPageOnLoad.apply(this, arguments)
+			return originPageOnLoad && originPageOnLoad.apply(this, arguments)
 		}
 		return originPage(page)
 	}
 	Component = function (component) {
-		const originComponentAttached = component['attached']
+		let originComponentAttached
+		if (component.lifetimes) {
+			originComponentAttached = component.lifetimes['attached']
+		} else {
+			// 兼容老版本
+			originComponentAttached = component['attached']
+		}
 		component['attached'] = function () {
 			this.setUpdatePerformanceListener &&
 				this.setUpdatePerformanceListener({ withDataPaths: true }, (res) => {
 					lifeCycle.notify(LifeCycleEventType.PAGE_SET_DATA_UPDATE, res)
 				})
-			return originComponentAttached.apply(this, arguments)
+			return originComponentAttached && originComponentAttached.apply(this, arguments)
 		}
 		return originComponent(component)
 	}

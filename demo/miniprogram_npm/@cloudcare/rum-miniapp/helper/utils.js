@@ -6,6 +6,11 @@ Object.defineProperty(exports, "__esModule", {
 exports.round = round;
 exports.msToNs = msToNs;
 exports.UUID = UUID;
+exports.jsonStringify = jsonStringify;
+exports.elapsed = elapsed;
+exports.getMethods = getMethods;
+exports.replaceNumberCharByPath = replaceNumberCharByPath;
+exports.getStatusGroup = getStatusGroup;
 exports.isPercentage = isPercentage;
 exports.noop = noop;
 exports.performDraw = performDraw;
@@ -14,7 +19,9 @@ exports.withSnakeCaseKeys = withSnakeCaseKeys;
 exports.deepSnakeCase = deepSnakeCase;
 exports.toSnakeCase = toSnakeCase;
 exports.escapeRowData = escapeRowData;
-exports.deepMixObject = exports.defineObject = exports.getOwnObjectKeys = exports.urlParse = exports.throttle = exports.now = exports.safeJSONParse = exports.isJSONString = exports.isEmptyObject = exports.isObject = exports.trim = exports.extend2Lev = exports.extend = exports.areInOrder = exports.toArray = exports.isNumber = exports.isBoolean = exports.isDate = exports.isString = exports.isUndefined = exports.values = exports.each = exports.isArguments = void 0;
+exports.deepMixObject = exports.defineObject = exports.getOwnObjectKeys = exports.urlParse = exports.throttle = exports.now = exports.safeJSONParse = exports.isJSONString = exports.isEmptyObject = exports.isObject = exports.trim = exports.extend2Lev = exports.extend = exports.getQueryParamsFromUrl = exports.areInOrder = exports.toArray = exports.isNumber = exports.isBoolean = exports.isDate = exports.isString = exports.isUndefined = exports.values = exports.each = exports.isArguments = void 0;
+
+var _enums = require("./enums");
 
 function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
@@ -157,6 +164,99 @@ function UUID(placeholder) {
   return placeholder ? // tslint:disable-next-line no-bitwise
   (parseInt(placeholder, 10) ^ Math.random() * 16 >> parseInt(placeholder, 10) / 4).toString(16) : "".concat(1e7, "-", 1e3, "-", 4e3, "-", 8e3, "-", 1e11).replace(/[018]/g, UUID);
 }
+
+function jsonStringify(value, replacer, space) {
+  if (value === null || value === undefined) {
+    return JSON.stringify(value);
+  }
+
+  var originalToJSON = [false, undefined];
+
+  if (hasToJSON(value)) {
+    // We need to add a flag and not rely on the truthiness of value.toJSON
+    // because it can be set but undefined and that's actually significant.
+    originalToJSON = [true, value.toJSON];
+    delete value.toJSON;
+  }
+
+  var originalProtoToJSON = [false, undefined];
+  var prototype;
+
+  if (_typeof(value) === 'object') {
+    prototype = Object.getPrototypeOf(value);
+
+    if (hasToJSON(prototype)) {
+      originalProtoToJSON = [true, prototype.toJSON];
+      delete prototype.toJSON;
+    }
+  }
+
+  var result;
+
+  try {
+    result = JSON.stringify(value, undefined, space);
+  } catch (e) {
+    result = '<error: unable to serialize object>';
+  } finally {
+    if (originalToJSON[0]) {
+      value.toJSON = originalToJSON[1];
+    }
+
+    if (originalProtoToJSON[0]) {
+      prototype.toJSON = originalProtoToJSON[1];
+    }
+  }
+
+  return result;
+}
+
+function hasToJSON(value) {
+  return _typeof(value) === 'object' && value !== null && value.hasOwnProperty('toJSON');
+}
+
+function elapsed(start, end) {
+  return end - start;
+}
+
+function getMethods(obj) {
+  var funcs = [];
+
+  for (var key in obj) {
+    if (typeof obj[key] === 'function' && !_enums.MpHook[key]) {
+      funcs.push(key);
+    }
+  }
+
+  return funcs;
+} // 替换url包含数字的路由
+
+
+function replaceNumberCharByPath(path) {
+  if (path) {
+    return path.replace(/\/([^\/]*)\d([^\/]*)/g, '/?');
+  } else {
+    return '';
+  }
+}
+
+function getStatusGroup(status) {
+  if (!status) return status;
+  return String(status).substr(0, 1) + String(status).substr(1).replace(/\d*/g, 'x');
+}
+
+var getQueryParamsFromUrl = function getQueryParamsFromUrl(url) {
+  var result = {};
+  var arr = url.split('?');
+  var queryString = arr[1] || '';
+
+  if (queryString) {
+    result = getURLSearchParams('?' + queryString);
+  }
+
+  return result;
+};
+
+exports.getQueryParamsFromUrl = getQueryParamsFromUrl;
 
 function isPercentage(value) {
   return isNumber(value) && value >= 0 && value <= 100;
@@ -317,7 +417,7 @@ function findByPath(source, path) {
   while (pathArr.length) {
     var key = pathArr.shift();
 
-    if (key in source && hasOwnProperty.call(source, key)) {
+    if (source && key in source && hasOwnProperty.call(source, key)) {
       source = source[key];
     } else {
       return undefined;
@@ -351,7 +451,7 @@ function deepSnakeCase(candidate) {
 
 function toSnakeCase(word) {
   return word.replace(/[A-Z]/g, function (uppercaseLetter, index) {
-    return "".concat(index !== 0 ? '_' : '').concat(uppercaseLetter.toLowerCase());
+    return (index !== 0 ? '_' : '') + uppercaseLetter.toLowerCase();
   }).replace(/-/g, '_');
 }
 

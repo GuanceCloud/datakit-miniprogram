@@ -25,13 +25,13 @@ function processAppUpdate(appinfo) {
     date: appinfo.startTime,
     type: _enums.RumEventType.APP,
     app: {
-      startupDuration: (0, _utils.msToNs)(appinfo.startupDuration),
-      scriptLoadDuration: (0, _utils.msToNs)(appinfo.scriptLoadDuration),
-      codeDownloadDuration: (0, _utils.msToNs)(appinfo.codeDownloadDuration),
-      startupType: appinfo.startupType,
-      timeSpent: (0, _utils.msToNs)(appinfo.duration)
+      type: appinfo.type,
+      name: appinfo.name,
+      id: appinfo.id,
+      duration: (0, _utils.msToNs)(appinfo.duration)
     }
   };
+  console.log(appEvent, 'appEvent====');
   return {
     rawRumEvent: appEvent,
     startTime: appinfo.startTime

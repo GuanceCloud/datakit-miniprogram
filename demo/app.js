@@ -1,6 +1,8 @@
 // //app.js
-const { datafluxRum } = require('./miniprogram/dataflux-rum-miniapp')
+// const { datafluxRum } = require('./miniprogram/dataflux-rum-miniapp')
 // // 初始化 Sentry
+const { datafluxRum } = require('@cloudcare/rum-miniapp')
+
 datafluxRum.init({
 	// datakitOrigin: 'http://10.100.64.249:9529',
 	// applicationId: 'appid_f79b4b96645c11eb9eaa7a259b00813d',
