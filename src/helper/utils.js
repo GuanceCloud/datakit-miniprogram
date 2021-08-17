@@ -180,6 +180,25 @@ export var getQueryParamsFromUrl = function (url) {
 	}
 	return result
 }
+export var getURLSearchParams = function (queryString) {
+  queryString = queryString || ''
+  var decodeParam = function (str) {
+    return decodeURIComponent(str)
+  }
+  var args = {}
+  var query = queryString.substring(1)
+  var pairs = query.split('&')
+  for (var i = 0; i < pairs.length; i++) {
+    var pos = pairs[i].indexOf('=')
+    if (pos === -1) continue
+    var name = pairs[i].substring(0, pos)
+    var value = pairs[i].substring(pos + 1)
+    name = decodeParam(name)
+    value = decodeParam(value)
+    args[name] = value
+  }
+  return args
+}
 export function isPercentage(value) {
 	return isNumber(value) && value >= 0 && value <= 100
 }
