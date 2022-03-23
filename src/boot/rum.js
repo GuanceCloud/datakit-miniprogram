@@ -14,7 +14,7 @@ import { startSetDataColloction } from '../rumEventsCollection/setDataCollection
 import { startActionCollection } from '../rumEventsCollection/action/actionCollection'
 
 import { sdk } from '../core/sdk'
-export const startRum = function (userConfiguration) {
+export const startRum = function (userConfiguration, getCommonContext) {
 	const configuration = commonInit(userConfiguration, buildEnv)
 	const lifeCycle = new LifeCycle()
 	var parentContexts = startParentContexts(lifeCycle)
@@ -24,6 +24,7 @@ export const startRum = function (userConfiguration) {
 		configuration,
 		lifeCycle,
 		parentContexts,
+		getCommonContext
 	)
 	startAppCollection(lifeCycle, configuration)
 	startResourceCollection(lifeCycle, configuration)

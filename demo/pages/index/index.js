@@ -52,7 +52,13 @@ Page({
 	//事件处理函数
 	bindViewTap: function () {
 		wx.request({
-			url: 'https://www.xxxxx.com/test',
+			url: "http://testing-ft2x-api.cloudcare.cn/api/v1/tag/list",
+			method: "get",
+			header: {
+				"content-type": "application/json",
+				"X-FT-Auth-Token":
+					"front.eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhY250X3V1aWQiOiJhY250XzM1OTNkNmQwNzFjYzExZWI5NTZmMWVmM2RkZTUyNTlmIiwid3NfdXVpZCI6Indrc3BfMmRjNDMxZDY2OTM3MTFlYjhmZjk3YWVlZTA0YjU0YWYiLCJ0b2tlbl91dWlkIjoiN2M0Yjc5NDJlMjNjNGFlMDljMjRiOWVjY2Y3ODVhODciLCJ0aW1lIjoxNjQ4MDAyNTQwLjM3MzE5LCJyYW5nc3RyIjoicUt0VXc2TlIiLCJsb2dpbl90eXBlIjoid2ViIn0.K5TOvWLawl1mLwgfJtgUx_5jaQD4oFnrJcwpoD2GSH0",
+			},
 		})
 		wx.downloadFile({
 			url: 'https://www.xxxxx.com/sdtf',

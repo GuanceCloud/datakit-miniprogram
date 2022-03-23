@@ -1,5 +1,5 @@
-import { extend2Lev, urlParse } from '../helper/utils'
-import { ONE_KILO_BYTE, ONE_SECOND } from '../helper/enums'
+import { extend2Lev, urlParse, values } from '../helper/utils'
+import { ONE_KILO_BYTE, ONE_SECOND, TraceType } from '../helper/enums'
 var TRIM_REGIX = /^\s+|\s+$/g
 export var DEFAULT_CONFIGURATION = {
 	sampleRate: 100,
@@ -22,6 +22,9 @@ export var DEFAULT_CONFIGURATION = {
 	 */
 	requestErrorResponseLengthLimit: 32 * ONE_KILO_BYTE,
 	trackInteractions: false,
+	traceType: TraceType.DDTRACE,
+  traceId128Bit: false,
+	allowedTracingOrigins:[], // 新增
 }
 function trim(str) {
 	return str.replace(TRIM_REGIX, '')
@@ -46,7 +49,20 @@ export function commonInit(userConfiguration, buildEnv) {
 	if ('trackInteractions' in userConfiguration) {
 		transportConfiguration.trackInteractions = !!userConfiguration.trackInteractions
 	}
+	if ('allowedTracingOrigins' in userConfiguration) {
+    transportConfiguration.allowedTracingOrigins = userConfiguration.allowedTracingOrigins
+  }
+	if ('traceId128Bit' in userConfiguration) {
+    transportConfiguration.traceId128Bit = !!userConfiguration.traceId128Bit
+  }
+  if ('traceType' in userConfiguration && hasTraceType(userConfiguration.traceType)) {
+    transportConfiguration.traceType = userConfiguration.traceType
+  }
 	return extend2Lev(DEFAULT_CONFIGURATION, transportConfiguration)
+}
+function hasTraceType(traceType) {
+  if (traceType && values(TraceType).indexOf(traceType) > -1) return true
+  return false
 }
 const haveSameOrigin = function (url1, url2) {
 	const parseUrl1 = urlParse(url1).getParse()

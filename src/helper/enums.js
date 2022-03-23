@@ -37,3 +37,11 @@ export var MpHook = {
 	onHide: 1,
 	onUnload: 1,
 }
+export var TraceType = {
+  DDTRACE: 'ddtrace',
+  ZIPKIN_MULTI_HEADER: 'zipkin',
+  ZIPKIN_SINGLE_HEADER: 'zipkin_single_header',
+  W3C_TRACEPARENT: 'w3c_traceparent',
+  SKYWALKING_V3: 'skywalking_v3',
+  JAEGER: 'jaeger',
+}

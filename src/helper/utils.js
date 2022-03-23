@@ -6,6 +6,7 @@ var hasOwnProperty = ObjProto.hasOwnProperty
 var slice = ArrayProto.slice
 var toString = ObjProto.toString
 var nativeForEach = ArrayProto.forEach
+var nativeIsArray = Array.isArray
 var breaker = false
 export var isArguments = function (obj) {
 	return !!(obj && hasOwnProperty.call(obj, 'callee'))
@@ -43,7 +44,12 @@ export var values = function (obj) {
 export function round(num, decimals) {
 	return +num.toFixed(decimals)
 }
-
+export function toServerDuration(duration) {
+  if (!isNumber(duration)) {
+    return duration
+  }
+  return round(duration * 1e6, 0)
+}
 export function msToNs(duration) {
 	if (typeof duration !== 'number') {
 		return duration
@@ -65,7 +71,11 @@ export var isBoolean = function (obj) {
 export var isNumber = function (obj) {
 	return toString.call(obj) === '[object Number]' && /[\d\.]+/.test(String(obj))
 }
-
+export var isArray =
+  nativeIsArray ||
+  function (obj) {
+    return toString.call(obj) === '[object Array]'
+  }
 export var toArray = function (iterable) {
 	if (!iterable) return []
 	if (iterable.toArray) {
@@ -137,6 +147,53 @@ export function jsonStringify(value, replacer, space) {
 		}
 	}
 	return result
+}
+export var base64Encode = function (data) {
+  data = String(data)
+  var b64 = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/='
+  var o1,
+    o2,
+    o3,
+    h1,
+    h2,
+    h3,
+    h4,
+    bits,
+    i = 0,
+    ac = 0,
+    enc = '',
+    tmp_arr = []
+  if (!data) {
+    return data
+  }
+  data = utf8Encode(data)
+  do {
+    o1 = data.charCodeAt(i++)
+    o2 = data.charCodeAt(i++)
+    o3 = data.charCodeAt(i++)
+
+    bits = (o1 << 16) | (o2 << 8) | o3
+
+    h1 = (bits >> 18) & 0x3f
+    h2 = (bits >> 12) & 0x3f
+    h3 = (bits >> 6) & 0x3f
+    h4 = bits & 0x3f
+    tmp_arr[ac++] =
+      b64.charAt(h1) + b64.charAt(h2) + b64.charAt(h3) + b64.charAt(h4)
+  } while (i < data.length)
+
+  enc = tmp_arr.join('')
+
+  switch (data.length % 3) {
+    case 1:
+      enc = enc.slice(0, -2) + '=='
+      break
+    case 2:
+      enc = enc.slice(0, -1) + '='
+      break
+  }
+
+  return enc
 }
 function hasToJSON(value) {
 	return (
@@ -357,11 +414,15 @@ export function toSnakeCase(word) {
 }
 
 export function escapeRowData(str) {
-	if (!isString(str)) return str
-	var reg = /[\s=,"]/g
-	return String(str).replace(reg, function (word) {
-		return '\\' + word
-	})
+	if (typeof str === 'object' && str) {
+		str = jsonStringify(str)
+ } else if (!isString(str)) {
+	 return str
+ } 
+ var reg = /[\s=,"]/g
+ return String(str).replace(reg, function (word) {
+	 return '\\' + word
+ })
 }
 export var urlParse = function (para) {
 	var URLParser = function (a) {
@@ -493,4 +554,37 @@ export const deepMixObject = function (targetObj) {
 		}
 	}
 	return targetObj
+}
+export function getOrigin(url) {
+  return urlParse(url).getParse().Origin
+}
+export function createContextManager() {
+  var context = {}
+
+  return {
+    get: function () {
+      return context
+    },
+
+    add: function (key, value) {
+      if (isString(key)) {
+        context[key] = value
+      } else {
+        console.error('key 需要传递字符串类型')
+      }
+    },
+
+    remove: function (key) {
+      delete context[key]
+    },
+
+    set: function (newContext) {
+      if (isObject(newContext)) {
+        context = newContext
+      } else {
+        console.error('content 需要传递对象类型数据')
+      }
+      
+    }
+  }
 }

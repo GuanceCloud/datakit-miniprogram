@@ -6,7 +6,9 @@ export var commonTags = {
 	app_id: 'application.id',
 	env: '_dd.env',
 	version: '_dd.version',
-	userid: 'user.user_id',
+	userid: 'user.id',
+  user_email: 'user.email',
+  user_name: 'user.name',
 	session_id: 'session.id',
 	session_type: 'session.type',
 	is_signin: 'user.is_signin',
@@ -14,6 +16,7 @@ export var commonTags = {
 	model: 'device.model',
 	device_uuid: 'device.device_uuid',
 	os: 'device.os',
+	app: 'device.app',
 	os_version: 'device.os_version',
 	os_version_major: 'device.os_version_major',
 	screen_size: 'device.screen_size',
@@ -49,6 +52,8 @@ export var dataMap = {
 	resource: {
 		type: RumEventType.RESOURCE,
 		tags: {
+			trace_id: '_dd.trace_id',
+      span_id: '_dd.span_id',
 			resource_type: 'resource.type',
 			resource_status: 'resource.status',
 			resource_status_group: 'resource.status_group',

@@ -1,7 +1,19 @@
-import { isPercentage } from '../helper/utils'
+import { isPercentage, extend2Lev, createContextManager } from '../helper/utils'
 import { startRum } from './rum'
+
 export const makeRum = function (startRumImpl) {
 	var isAlreadyInitialized = false
+	var globalContextManager = createContextManager()
+  var user = {}
+	function clonedCommonContext() {
+    return extend2Lev(
+      {},
+      {
+        context: globalContextManager.get(),
+        user: user
+      }
+    )
+  }
 	var rumGlobal = {
 		init: function (userConfiguration) {
 			if (typeof userConfiguration === 'undefined') {
@@ -10,12 +22,32 @@ export const makeRum = function (startRumImpl) {
 			if (!canInitRum(userConfiguration)) {
 				return
 			}
-			startRumImpl(userConfiguration)
-
+			startRumImpl(userConfiguration, function () {
+        return {
+          user: user,
+          context: globalContextManager.get()
+        }
+      })
 			isAlreadyInitialized = true
 		},
+		addRumGlobalContext: globalContextManager.add,
+    removeRumGlobalContext: globalContextManager.remove,
+    getRumGlobalContext: globalContextManager.get,
+    setRumGlobalContext: globalContextManager.set,
+		setUser: function (newUser) {
+      var sanitizedUser = sanitizeUser(newUser)
+      if (sanitizedUser) {
+        user = sanitizedUser
+      } else {
+        console.error('Unsupported user:', newUser)
+      }
+    },
+    removeUser: function () {
+      user = {}
+    }
 	}
 	return rumGlobal
+	
 	function canInitRum(userConfiguration) {
 		if (isAlreadyInitialized) {
 			console.error('DATAFLUX_RUM is already initialized.')
@@ -43,5 +75,21 @@ export const makeRum = function (startRumImpl) {
 		}
 		return true
 	}
+	function sanitizeUser(newUser) {
+    if (typeof newUser !== 'object' || !newUser) {
+      return
+    }
+    var result = extend2Lev({}, newUser)
+    if ('id' in result) {
+      result.id = String(result.id)
+    }
+    if ('name' in result) {
+      result.name = String(result.name)
+    }
+    if ('email' in result) {
+      result.email = String(result.email)
+    }
+    return result
+  }
 }
 export const datafluxRum = makeRum(startRum)

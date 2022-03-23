@@ -3,10 +3,12 @@ import { startDownloadProxy } from '../core/downloadProxy'
 import { LifeCycleEventType } from '../core/lifeCycle'
 import { isObject } from '../helper/utils'
 import { isAllowedRequestUrl } from '../rumEventsCollection/resource/resourceUtils'
+import {startTracer} from '../rumEventsCollection/tracing/tracer'
 var nextRequestIndex = 1
 
 export function startRequestCollection(lifeCycle, configuration) {
-	trackXhr(lifeCycle, configuration)
+	var tracer = startTracer(configuration)
+	trackXhr(lifeCycle, configuration,tracer)
 	trackDownload(lifeCycle, configuration)
 }
 function parseHeader(header) {
@@ -26,10 +28,11 @@ function getHeaderString(header) {
 	})
 	return headerStr
 }
-export function trackXhr(lifeCycle, configuration) {
+export function trackXhr(lifeCycle, configuration,tracer) {
 	var xhrProxy = startXhrProxy()
 	xhrProxy.beforeSend(function (context) {
 		if (isAllowedRequestUrl(configuration, context.url)) {
+			tracer.traceXhr(context)
 			context.requestIndex = getNextRequestIndex()
 			lifeCycle.notify(LifeCycleEventType.REQUEST_STARTED, {
 				requestIndex: context.requestIndex,
@@ -38,6 +41,7 @@ export function trackXhr(lifeCycle, configuration) {
 	})
 	xhrProxy.onRequestComplete(function (context) {
 		if (isAllowedRequestUrl(configuration, context.url)) {
+			tracer.clearTracingIfCancelled(context)
 			lifeCycle.notify(LifeCycleEventType.REQUEST_COMPLETED, {
 				duration: context.duration,
 				method: context.method,
@@ -46,6 +50,8 @@ export function trackXhr(lifeCycle, configuration) {
 				response: context.response,
 				startTime: context.startTime,
 				status: context.status,
+				traceId: context.traceId,
+        spanId: context.spanId,
 				type: context.type,
 				url: context.url,
 			})

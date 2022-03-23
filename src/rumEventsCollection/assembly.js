@@ -1,4 +1,4 @@
-import { extend2Lev, withSnakeCaseKeys, performDraw } from '../helper/utils'
+import { extend2Lev, withSnakeCaseKeys, performDraw, isEmptyObject } from '../helper/utils'
 import { LifeCycleEventType } from '../core/lifeCycle'
 import { RumEventType } from '../helper/enums'
 import baseInfo from '../core/baseInfo'
@@ -14,6 +14,7 @@ export function startRumAssembly(
 	configuration,
 	lifeCycle,
 	parentContexts,
+	getCommonContext
 ) {
 	lifeCycle.subscribe(
 		LifeCycleEventType.RAW_RUM_EVENT_COLLECTED,
@@ -21,7 +22,8 @@ export function startRumAssembly(
 			var startTime = data.startTime
 			var rawRumEvent = data.rawRumEvent
 			var viewContext = parentContexts.findView(startTime)
-
+			var savedCommonContext = data.savedGlobalContext
+      var customerContext = data.customerContext
 			var deviceContext = {
 				device: baseInfo.deviceInfo,
 			}
@@ -30,6 +32,7 @@ export function startRumAssembly(
 				(viewContext || rawRumEvent.type === RumEventType.APP)
 			) {
 				var actionContext = parentContexts.findAction(startTime)
+				var commonContext = savedCommonContext || getCommonContext()
 				var rumContext = {
 					_dd: {
 						sdkName: configuration.sdkName,
@@ -48,7 +51,7 @@ export function startRumAssembly(
 						type: SessionType.USER,
 					},
 					user: {
-						user_id: configuration.user_id || baseInfo.getClientID(),
+						id: configuration.user_id || baseInfo.getClientID(),
 						is_signin: configuration.user_id ? 'T' : 'F',
 					},
 				}
@@ -62,13 +65,20 @@ export function startRumAssembly(
 				)
 
 				var serverRumEvent = withSnakeCaseKeys(rumEvent)
-				// if (
-				// 	serverRumEvent.type === 'view' ||
-				// 	serverRumEvent.type === 'action'
-				// ) {
-				// 	console.log(serverRumEvent, 'serverRumEvent')
-				// }
-
+				var context = extend2Lev(commonContext.context, customerContext)
+        if (!isEmptyObject(context)) {
+          serverRumEvent.tags = context
+        }
+				if (!isEmptyObject(commonContext.user)) {
+          // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+          serverRumEvent.user = extend2Lev(
+            {
+              id: baseInfo.getClientID(),
+              is_signin: 'T'
+            },
+            commonContext.user
+          )
+        }
 				lifeCycle.notify(LifeCycleEventType.RUM_EVENT_COLLECTED, serverRumEvent)
 			}
 		},
