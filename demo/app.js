@@ -1,7 +1,7 @@
 // //app.js
-// const { datafluxRum } = require('./miniprogram/dataflux-rum-miniapp')
+const { datafluxRum } = require('./miniprogram/dataflux-rum-miniapp')
 // // 初始化 Sentry
-const { datafluxRum } = require('@cloudcare/rum-miniapp')
+// const { datafluxRum } = require('@cloudcare/rum-miniapp')
 
 datafluxRum.init({
 	datakitOrigin: 'http://172.16.2.201:31845',
@@ -9,7 +9,7 @@ datafluxRum.init({
 	env: 'prod',
 	version: '1.0.0',
 	trackInteractions: true,
-	// allowedTracingOrigins: ['http://testing-ft2x-api.cloudcare.cn'],
+	allowedTracingOrigins: ['http://testing-ft2x-api.cloudcare.cn','http://172.16.5.9:5001'],
 	// traceType: 'zipkin'
 })
 // datafluxRum.setUser({
