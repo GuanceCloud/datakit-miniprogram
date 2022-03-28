@@ -148,6 +148,48 @@ export function jsonStringify(value, replacer, space) {
 	}
 	return result
 }
+export var utf8Encode = function (string) {
+  string = (string + '').replace(/\r\n/g, '\n').replace(/\r/g, '\n')
+
+  var utftext = '',
+    start,
+    end
+  var stringl = 0,
+    n
+
+  start = end = 0
+  stringl = string.length
+
+  for (n = 0; n < stringl; n++) {
+    var c1 = string.charCodeAt(n)
+    var enc = null
+
+    if (c1 < 128) {
+      end++
+    } else if (c1 > 127 && c1 < 2048) {
+      enc = String.fromCharCode((c1 >> 6) | 192, (c1 & 63) | 128)
+    } else {
+      enc = String.fromCharCode(
+        (c1 >> 12) | 224,
+        ((c1 >> 6) & 63) | 128,
+        (c1 & 63) | 128
+      )
+    }
+    if (enc !== null) {
+      if (end > start) {
+        utftext += string.substring(start, end)
+      }
+      utftext += enc
+      start = end = n + 1
+    }
+  }
+
+  if (end > start) {
+    utftext += string.substring(start, string.length)
+  }
+
+  return utftext
+}
 export var base64Encode = function (data) {
   data = String(data)
   var b64 = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/='
@@ -498,6 +540,7 @@ export var urlParse = function (para) {
 				this._values[c] = b[this._fields[c]]
 			}
 		}
+		this._values['Path'] = this._values['Path'] || '/'
 		this._values['Hostname'] = this._values['Host'].replace(/:\d+$/, '')
 		this._values['Origin'] =
 			this._values['Protocol'] + '://' + this._values['Hostname'] + (this._values.Port ? ':' + this._values.Port : '')
@@ -588,4 +631,11 @@ export function createContextManager() {
       
     }
   }
+}
+export function getActivePage() {
+	const curPages = typeof getCurrentPages === 'function' ? getCurrentPages() : []
+	if (curPages.length) {
+		return curPages[curPages.length - 1]
+	}
+	return {}
 }

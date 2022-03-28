@@ -10,7 +10,7 @@ datafluxRum.init({
 	version: '1.0.0',
 	trackInteractions: true,
 	allowedTracingOrigins: ['http://testing-ft2x-api.cloudcare.cn','http://172.16.5.9:5001'],
-	// traceType: 'zipkin'
+	traceType: 'skywalking_v3'
 })
 // datafluxRum.setUser({
 // 	id: '1234',

@@ -1,4 +1,4 @@
-import { extend, now, throttle, UUID, isNumber } from '../../helper/utils'
+import { extend, now, throttle, UUID, isNumber, getActivePage } from '../../helper/utils'
 import { trackEventCounts } from '../trackEventCounts'
 import { LifeCycleEventType } from '../../core/lifeCycle'
 // 劫持原小程序App方法
@@ -223,10 +223,10 @@ function trackSetDataTime(lifeCycle, callback) {
 		stop: subscribe.unsubscribe,
 	}
 }
-function getActivePage() {
-	const curPages = getCurrentPages()
-	if (curPages.length) {
-		return curPages[curPages.length - 1]
-	}
-	return {}
-}
+// function getActivePage() {
+// 	const curPages = getCurrentPages()
+// 	if (curPages.length) {
+// 		return curPages[curPages.length - 1]
+// 	}
+// 	return {}
+// }

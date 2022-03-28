@@ -1,4 +1,4 @@
-import {base64Encode, urlParse} from '../../helper/utils'
+import {base64Encode, urlParse , getActivePage} from '../../helper/utils'
 // start SkyWalking
 function uuid() {
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
@@ -10,29 +10,7 @@ function uuid() {
     return v.toString(16);
   });
 }
-/**
- * 
- * @param {*} traceId 
- * @param {*} traceSegmentId 
- * @param {*} applicationId 
- * @param {*} version 
- * @param {*} requestUrlHost 
- */
-function getSkyWalkingSw8(traceId, traceSegmentId, applicationId, env ,version,requestUrlHost) {
-  try {
-    var traceIdStr = String(base64Encode(traceId));
-    var segmentId = String(base64Encode(traceSegmentId));
-    var service = String(base64Encode(applicationId + '_rum_' + env));
-    var instance = String(base64Encode(version));
-    var endpoint = String(base64Encode(window.location.href));
-    var peer = String(base64Encode(requestUrlHost));
-    var index = '0'
-    // var values = `${1}-${traceIdStr}-${segmentId}-${index}-${service}-${instance}-${endpoint}-${peer}`;
-    return '1-' + traceIdStr + '-'+ segmentId + '-' +index + '-'+ service + '-'+ instance + '-'+ endpoint + '-'+ peer
-  } catch(err) {
-    return ''
-  }
-}
+
 /**
  * 
  * @param {*} configuration  配置信息
@@ -63,7 +41,12 @@ SkyWalkingTracer.prototype = {
     var segmentId = String(base64Encode(this._spanId));
     var service = String(base64Encode(this._applicationId + '_rum_' + this.env));
     var instance = String(base64Encode(this._version));
-    var endpoint = String(base64Encode(window.location.href));
+    var activePage = getActivePage()
+    var endpointPage = ''
+    if (activePage && activePage.route) {
+      endpointPage = activePage.route
+    }
+    var endpoint = String(base64Encode(endpointPage));
     var peer = String(base64Encode(this._urlParse.Host));
     var index = '0'
     // var values = `${1}-${traceIdStr}-${segmentId}-${index}-${service}-${instance}-${endpoint}-${peer}`;
